@@ -195,6 +195,8 @@ The KW X ULP can send Consumer-page controls instead of regular function keys. S
 
 **Preset functions and standard F-keys are independently assignable.** With the KW X ULP Fn light off, F8/F11/F12 send the presets above; holding Fn sends standard F8/F11/F12. Ctrl+Fn changes Fn Lock and reverses the layers. The app labels the two choices, for example **F12 — Mail (preset)** and **Fn + F12 — standard F12**, and explains this in the main window and assignment editor. Labels describe the Fn-light-off arrangement; the app routes the event actually sent by the keyboard and does not read the Fn light.
 
+The selected profile is shared across the F1 receiver, F2/F3 Bluetooth and wired USB. Connection identity is used to track held keys and disconnects; it does not select a different mapping or merge the two layers. Automated tests cover all four normalized input paths and all 12 directed channel transitions. These tests do not replace physical checks on each connection.
+
 Choose the preset trigger to replace its built-in action, or the standard F-key trigger to assign the Fn layer. There is no inheritance between them. For example, assign **F12 — Mail (preset)** to a mail application while leaving **Fn + F12 — standard F12** unassigned or mapping it to something else. Other models' Fn layouts may differ. Existing saved triggers retain their meaning; builds do not automatically move users' assignments between layers.
 
 Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. The v0.4.4 DMG predates this fix. All three preset defaults were physically confirmed over the F1 receiver on v0.4.5 build 14. On build 16 over the F1 receiver, the user confirmed the independent layers: the customized F12 preset opens the selected application, Fn + F12 does not invoke that assignment, and Calculator works. Browser Home produced no visible effect in that session, so browser-specific Home behavior remains unverified.
@@ -241,7 +243,7 @@ xcrun swift-format lint --strict --recursive Sources Tests
 
 The build produces a universal arm64/x86_64 app in `.build/package.noindex/Cherry Keys for Mac.app`. Install at exactly `/Applications/Cherry Keys for Mac.app`; that path is part of helper authentication. Never run the GUI or test suite as root.
 
-Coverage includes model validation and private persistence, 93 routing checks, 10 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
+Coverage includes model validation and private persistence, 93 key-routing checks, 78 transport-routing checks, 10 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
 
 ### Signing and updates
 

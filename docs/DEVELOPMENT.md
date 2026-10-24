@@ -6,6 +6,8 @@ Install Apple's Command Line Tools, then use the commands in the README. There i
 
 `build.sh` stages a universal bundle without installing it or registering services. `test-service.sh` requires the signing identity and a prior build. Tests run as a normal user and never seize devices, register a service or install software. The CI workflow creates an ephemeral local signing identity on its macOS runner; no signing secrets are uploaded.
 
+`test-input.sh` runs key-routing, transport-routing and recovery checks. Keep the transport matrix intact when adding hardware or changing trigger lookup: the same profile must apply across connections, preset/Fn layers must stay separate, and disconnect cleanup must not invoke a pending action or release another connection's key. The transport fixtures contain only generic model metadata and synthetic registry IDs.
+
 Format Swift with `xcrun swift-format format --in-place --recursive Sources Tests`. Review changes semantically; formatting is not a security check.
 
 ## Signing
