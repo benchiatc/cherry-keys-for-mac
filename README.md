@@ -8,13 +8,16 @@
 
 I built this because the keyboard I wanted to use shipped with Windows-only [CHERRY KEYS software (official download)](https://www.cherry.de/en-gb/products/software-services/cherry-keys). I investigated its behavior, designed a native Mac alternative, and tested it against the real keyboard across every connection mode. The work went beyond mapping keys: isolating the right device, separating privileged capture from user actions, fixing Bluetooth LED feedback, and recovering after sleep and lock. Each fix followed a user-visible problem and a physical check. This project turns that work into an open-source foundation other Mac users can extend for their own CHERRY hardware.
 
-**4 connection modes verified · 93 routing checks + 10 recovery checks · 0 third-party runtime dependencies**
+**4 connection modes verified · 171 key/transport checks + 10 recovery checks · 0 third-party runtime dependencies**
 
 Swift and SwiftUI. MIT licensed. Independent community software, not affiliated with or endorsed by CHERRY.
+
+Current preview: **v0.4.5 (build 16)** · [Changelog](CHANGELOG.md) · [GitHub release](https://github.com/benchiatc/cherry-keys-for-mac/releases/tag/v0.4.5)
 
 ### What you can do
 
 - **Make the layout feel native:** remap keys and swap Windows/Alt to Command/Option.
+- **Customize both layers:** assign preset commands and standard Fn + F-keys independently.
 - **Launch Mac actions:** Spotlight, screenshots, Emoji & Symbols and media controls.
 - **Automate everyday tasks:** create shortcuts, text snippets and recorded keyboard macros.
 - **Keep your setup across connections:** use the same selected profile over the receiver, Bluetooth or USB cable.
@@ -23,6 +26,7 @@ Swift and SwiftUI. MIT licensed. Independent community software, not affiliated 
 
 ## Contents
 
+- [Changelog](CHANGELOG.md)
 - [Install and get started](#install-and-get-started)
 - [Everyday use](#everyday-use)
 - [Compatibility](#compatibility)
@@ -100,7 +104,9 @@ The app has buttons to open these settings. Quit and reopen it after enabling bo
 
 This is a one-time setup. You should not need an administrator password every time you pause or enable remapping.
 
-**3. Make it yours.** For a familiar Mac modifier layout, click **Swap Windows ↔ Alt**: physical Alt becomes Command, and the Windows key becomes Option. For another action, choose **Add assignment → Detect key**, press the key you want to change, choose an action, and save.
+**3. Make it yours.** For a familiar Mac modifier layout, click **Swap Windows ↔ Alt**: physical Alt becomes Command, and the Windows key becomes Option. For another action, choose **Add assignment**, select a trigger (or use **Detect key**), choose an action, and save.
+
+**Preset or Fn key?** On the KW X ULP with its Fn light off, choose **F12 — Mail (preset)** to change the Mail button, or **Fn + F12 — standard F12** to assign the other layer. They are separate; Ctrl+Fn reverses which layer needs Fn. Browser Home and Calculator have named preset triggers too.
 
 **4. Enable remapping.** Click **Enable remapping**, then try your keys in TextEdit. Your selected profile follows the keyboard when you switch between its supported connection modes.
 
@@ -114,6 +120,7 @@ This is a one-time setup. You should not need an administrator password every ti
 | Stop the app | Choose **Quit** |
 | Start the app when you log in | Enable **Launch at login** |
 | Keep different sets of assignments | Create profiles and select the one you want |
+| Change preset F12 without changing Fn + F12 | Assign **F12 — Mail (preset)**; leave the standard trigger unchanged |
 | Recover if a mapping gets in your way | Use the menu-bar Pause button, or press **Control–Option–Command–Escape** on CHERRY |
 
 Each app launch starts with remapping paused. Once enabled, it resumes automatically after sleep/wake or lock/unlock; you do not need to enable it again. A manual Pause stays paused. Remapping is suspended during protected password entry, so lock-screen input uses native keyboard behavior.
@@ -131,7 +138,7 @@ Profiles can be exported and imported as JSON. They may contain private text or 
 | F3 Bluetooth 2 | Same, including capture after changing Bluetooth slots |
 | USB cable | Same, with immediate LED feedback |
 
-All four modes were rechecked on **v0.4.3 build 12** after helper hardening. Automatic recovery after sleep and lock was physically confirmed on **v0.4.4 build 13**. These results come from one keyboard on one Apple silicon Mac; they are not a guarantee for every model, layout or macOS version.
+All four modes were rechecked on **v0.4.3 build 12** after helper hardening. Automatic recovery after sleep and lock was physically confirmed on **v0.4.4 build 13**. The latest preset/Fn separation and Calculator were physically confirmed on **v0.4.5 build 16 over F1**; the other three connections have automated coverage for this change but await that specific physical recheck. These results come from one keyboard on one Apple silicon Mac; they are not a guarantee for every model, layout or macOS version.
 
 Other CHERRY USB keyboards may work but are untested. Other CHERRY Bluetooth models need their device identities verified and added. Non-CHERRY keyboards stay on their normal macOS path; the connected Logitech receiver was verified as excluded by the device filter.
 
@@ -185,7 +192,7 @@ Text, macro, launch and system actions run on trigger release. Keyboard shortcut
 
 ### Alternate F8 / F11 / F12 functions
 
-The KW X ULP can send Consumer-page controls instead of regular function keys. Source builds from v0.4.5 recognize these without pausing capture:
+The KW X ULP can send Consumer-page controls instead of regular function keys. The app and DMG recognize these from v0.4.5 onward without pausing capture:
 
 | Trigger in the editor | HID page / usage | Default behavior |
 | --- | --- | --- |
@@ -199,7 +206,7 @@ The selected profile is shared across the F1 receiver, F2/F3 Bluetooth and wired
 
 Choose the preset trigger to replace its built-in action, or the standard F-key trigger to assign the Fn layer. There is no inheritance between them. For example, assign **F12 — Mail (preset)** to a mail application while leaving **Fn + F12 — standard F12** unassigned or mapping it to something else. Other models' Fn layouts may differ. Existing saved triggers retain their meaning; builds do not automatically move users' assignments between layers.
 
-Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. Use v0.4.5 or later for these controls. All three preset defaults were physically confirmed over the F1 receiver on v0.4.5 build 14. On build 16 over the F1 receiver, the user confirmed the independent layers: the customized F12 preset opens the selected application, Fn + F12 does not invoke that assignment, and Calculator works. Browser Home produced no visible effect in that session, so browser-specific Home behavior remains unverified.
+Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. Use v0.4.5 or later for these controls. On build 16 over the F1 receiver, the user confirmed the independent layers: the customized F12 preset opens the selected application, Fn + F12 does not invoke that assignment, and Calculator works. Browser Home produced no visible effect in that session, so browser-specific Home behavior remains unverified.
 
 Usage names follow the [USB-IF HID Usage Tables](https://www.usb.org/sites/default/files/hut1_21_0.pdf). Browser Home uses the [standard Safari homepage shortcut](https://support.apple.com/en-gb/guide/safari/cpsh003/mac); the foreground application's shortcuts and settings determine its effect.
 
@@ -232,6 +239,7 @@ Core transport behavior and sleep/lock recovery have physical acceptance, but co
 ### Build and automated checks
 
 ```sh
+python3 scripts/check-release.py
 python3 scripts/prepare-local-signing.py
 ./scripts/build.sh
 ./scripts/test.sh
@@ -249,7 +257,7 @@ Coverage includes model validation and private persistence, 93 key-routing check
 
 Source builders create an isolated local signing identity under `~/Library/Application Support/CherryKeysMac/Signing`. Keep it private and retain it for future builds. All three executables must use the same certificate; changing signers can require macOS permission/helper reapproval. The script does not alter certificate trust or the default keychain.
 
-Local builds are not Developer ID notarized releases. Public binary distribution needs a protected signing pipeline, notarization and clean-machine validation. Do not disable Gatekeeper, SIP or signature validation to install this app. For broker upgrades, removal and rollback, see [development and distribution](docs/DEVELOPMENT.md).
+Published DMGs are explicitly labelled locally signed development previews, not Developer ID notarized releases. Production distribution still needs a protected signing pipeline, notarization and clean-machine validation. Do not disable Gatekeeper, SIP or signature validation to install this app. For broker upgrades, removal and rollback, see [development and distribution](docs/DEVELOPMENT.md).
 
 ### Packages and source export
 
@@ -257,9 +265,10 @@ Local builds are not Developer ID notarized releases. Public binary distribution
 ./scripts/package.sh
 python3 scripts/check-public-source.py
 python3 scripts/export-source.py
+python3 scripts/check-release.py --app ".build/package.noindex/Cherry Keys for Mac.app" --dist
 ```
 
-App packaging creates `dist/app/CherryKeysMac-<version>-macOS-universal.dmg`: a compressed, read-only image containing the signed app, an Applications shortcut, setup instructions and the MIT license. `dist/app/SHA256SUMS` records its checksum. The package script verifies the bundle signature and disk-image integrity; it does not notarize the app or grant permissions. Source export creates `dist/source/CherryKeysMac-source.zip` with its own `dist/source/SHA256SUMS`, from an explicit allowlist excluding settings, signing material, build outputs, investigation artifacts and Git history. Run a credential scanner on the actual exported/staged files and any history you intend to publish. Do not upload a parent workspace or private troubleshooting archives.
+App packaging creates `dist/app/CherryKeysMac-<version>-macOS-universal.dmg`: a compressed, read-only image containing the signed app, an Applications shortcut, versioned setup instructions, changelog and the MIT license. `dist/app/SHA256SUMS` records its checksum. The package script rejects mismatched release docs/staged metadata and verifies the bundle signature and disk-image integrity; it does not notarize the app or grant permissions. Source export creates `dist/source/CherryKeysMac-source.zip` with its own `dist/source/SHA256SUMS`, from an explicit allowlist excluding settings, signing material, build outputs, investigation artifacts and Git history. Run a credential scanner on the actual exported/staged files and any history you intend to publish. Do not upload a parent workspace or private troubleshooting archives.
 
 ## Security
 
@@ -271,7 +280,7 @@ The source review identified and fixed a privileged executable-replacement race 
 
 ### Reporting vulnerabilities
 
-Use GitHub **Security → Report a vulnerability** if enabled. Maintainers should enable private vulnerability reporting before publication. If unavailable, request a private reporting channel without posting exploit details publicly.
+Use the repository’s [private vulnerability reporting form](https://github.com/benchiatc/cherry-keys-for-mac/security/advisories/new). If it is unavailable, request a private reporting channel without posting exploit details publicly.
 
 Include the source revision, macOS/toolchain version, required privileges and a minimal reproduction. Redact account names, paths, device addresses/serials, profiles and credentials. Do not upload captured keystrokes.
 
@@ -279,6 +288,7 @@ Include the source revision, macOS/toolchain version, required privileges and a 
 
 Hardware support, layout fixes and reproducible bug reports are welcome. Start with:
 
+- [Changelog](CHANGELOG.md)
 - [Contribution guidelines](CONTRIBUTING.md)
 - [Adding hardware support and manual checks](docs/HARDWARE.md)
 - [Architecture](docs/ARCHITECTURE.md)

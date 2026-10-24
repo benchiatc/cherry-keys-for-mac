@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TOP = {'README.md', 'LICENSE', 'CONTRIBUTING.md', '.gitignore', '.swift-format'}
+TOP = {'README.md', 'CHANGELOG.md', 'LICENSE', 'CONTRIBUTING.md', '.gitignore', '.swift-format'}
 DIRECTORIES = ('Sources', 'Tests', 'scripts', 'Resources', 'docs', '.github')
 
 def public_files():

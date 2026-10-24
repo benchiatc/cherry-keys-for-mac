@@ -9,6 +9,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Privacy checks
         run: python3 scripts/check-public-source.py
+      - name: Release metadata checks
+        run: python3 scripts/check-release.py
       - name: Prepare ephemeral local signing identity
         run: python3 scripts/prepare-local-signing.py
       - name: Signing diagnostics
@@ -19,6 +21,8 @@ jobs:
           security find-identity -p codesigning "$HOME/Library/Application Support/CherryKeysMac/Signing/CherryKeys.keychain-db"
       - name: Build universal app
         run: ./scripts/build.sh
+      - name: Staged version checks
+        run: python3 scripts/check-release.py --app '.build/package.noindex/Cherry Keys for Mac.app'
       - name: Test without hardware or root
         run: |
           ./scripts/test.sh
@@ -26,4 +30,7 @@ jobs:
           ./scripts/test-capture.sh
           ./scripts/test-service.sh
       - name: Export source
-        run: python3 scripts/export-source.py
+        run: |
+          ./scripts/package.sh
+          python3 scripts/export-source.py
+          python3 scripts/check-release.py --app '.build/package.noindex/Cherry Keys for Mac.app' --dist

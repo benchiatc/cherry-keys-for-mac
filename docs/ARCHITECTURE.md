@@ -22,6 +22,18 @@ Only CHERRY keyboard and associated consumer-control interfaces are seized. Unsu
 
 `ConfigurationStore` validates bounded JSON, saves atomically, restricts settings-directory permissions and retains one private backup. Profiles are user-owned settings, never inputs to the root broker. The active profile applies to all captured devices; there is no physical-unit profile enrollment.
 
+## Trigger resolution and transport consistency
+
+| Trigger namespace | Input | Resolution |
+| --- | --- | --- |
+| `key` | HID keyboard page 7 | Standard key or F-key assignment; otherwise normal key relay |
+| `media` | Known Consumer-page media usages | NX media assignment; otherwise media relay |
+| `consumer` | Browser Home, Calculator, Mail usages | Explicit preset assignment; otherwise the documented preset default |
+
+Trigger lookup uses kind/code from the selected profile, not a port, Bluetooth slot or registry ID. There is no inheritance between standard F-key and consumer-preset assignments. The UI's Fn labels describe the KW X ULP Fn-light-off arrangement; hardware Fn Lock changes the HID event produced, and the app routes that event without trying to observe the Fn light. Unknown keys restore native input rather than being silently discarded. Launch defaults execute in the unprivileged GUI; Mail resolves the local default mail handler without composing a message.
+
+`TransportRoutingTests` covers split USB interfaces and combined Bluetooth interfaces, profile consistency and independent layers across four synthetic connection fixtures, plus all 12 directed channel handoffs. Device identity remains part of held-state tracking so late releases from an old channel cannot complete a cancelled action on the new one. These tests do not establish radio timing or hardware report generation.
+
 ## Source layout
 
 - `Sources/Shared`: XPC contract, signing requirement and device identity policy.
