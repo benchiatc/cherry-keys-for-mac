@@ -49,7 +49,7 @@ Both options install the same app and use the same macOS permission setup.
 
 **Choose this if you just want to use the app.** You do not need to download the source code or build anything.
 
-1. Download **[CherryKeysMac-0.4.4-macOS-universal.dmg](https://github.com/benchiatc/cherry-keys-for-mac/releases/download/v0.4.4/CherryKeysMac-0.4.4-macOS-universal.dmg)**. The packaged app is in `dist/app/`.
+1. Download **[CherryKeysMac-0.4.5-macOS-universal.dmg](https://github.com/benchiatc/cherry-keys-for-mac/releases/download/v0.4.5/CherryKeysMac-0.4.5-macOS-universal.dmg)**. The packaged app is in `dist/app/`.
 2. Double-click the DMG to open it.
 3. Drag **Cherry Keys for Mac.app** onto the **Applications** shortcut in the window.
 4. Eject the disk image, then open **Cherry Keys for Mac** from Applications.
@@ -199,7 +199,7 @@ The selected profile is shared across the F1 receiver, F2/F3 Bluetooth and wired
 
 Choose the preset trigger to replace its built-in action, or the standard F-key trigger to assign the Fn layer. There is no inheritance between them. For example, assign **F12 — Mail (preset)** to a mail application while leaving **Fn + F12 — standard F12** unassigned or mapping it to something else. Other models' Fn layouts may differ. Existing saved triggers retain their meaning; builds do not automatically move users' assignments between layers.
 
-Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. The v0.4.4 DMG predates this fix. All three preset defaults were physically confirmed over the F1 receiver on v0.4.5 build 14. On build 16 over the F1 receiver, the user confirmed the independent layers: the customized F12 preset opens the selected application, Fn + F12 does not invoke that assignment, and Calculator works. Browser Home produced no visible effect in that session, so browser-specific Home behavior remains unverified.
+Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. Use v0.4.5 or later for these controls. All three preset defaults were physically confirmed over the F1 receiver on v0.4.5 build 14. On build 16 over the F1 receiver, the user confirmed the independent layers: the customized F12 preset opens the selected application, Fn + F12 does not invoke that assignment, and Calculator works. Browser Home produced no visible effect in that session, so browser-specific Home behavior remains unverified.
 
 Usage names follow the [USB-IF HID Usage Tables](https://www.usb.org/sites/default/files/hut1_21_0.pdf). Browser Home uses the [standard Safari homepage shortcut](https://support.apple.com/en-gb/guide/safari/cpsh003/mac); the foreground application's shortcuts and settings determine its effect.
 
