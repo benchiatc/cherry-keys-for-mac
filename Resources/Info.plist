@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Cherry Keys for Mac</string>
+	<key>CFBundleExecutable</key>
+	<string>CherryKeysMac</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>local.cherrykeys.mac</string>
+	<key>CFBundleName</key>
+	<string>Cherry Keys for Mac</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.4.4</string>
+	<key>CFBundleVersion</key>
+	<string>13</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>Remap only the keys you assign and play back your shortcuts and macros.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Independent reconstruction. Not affiliated with CHERRY. No CHERRY binaries or artwork included.</string>
+	<key>NSInputMonitoringUsageDescription</key>
+	<string>Read assigned keyboard keys while remapping is enabled.</string>
+</dict>
+</plist>

@@ -1,0 +1,23 @@
+name: macOS validation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  build-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Privacy checks
+        run: python3 scripts/check-public-source.py
+      - name: Prepare ephemeral local signing identity
+        run: python3 scripts/prepare-local-signing.py
+      - name: Build universal app
+        run: ./scripts/build.sh
+      - name: Test without hardware or root
+        run: |
+          ./scripts/test.sh
+          ./scripts/test-input.sh
+          ./scripts/test-capture.sh
+          ./scripts/test-service.sh
+      - name: Export source
+        run: python3 scripts/export-source.py
