@@ -168,6 +168,60 @@ struct InputEngineTests {
             consumer(usage, true)
             router.releaseAll()
             check(actions.isEmpty, "Pause cancels a held consumer action")
+            var inherited = Assignment()
+            inherited.trigger = control.functionTrigger
+            inherited.action = .application
+            inherited.value = "/System/Applications/Calculator.app"
+            router.assignments = [inherited]
+            consumer(usage, true)
+            consumer(usage, false)
+            check(
+                actions == [inherited],
+                "Alternate key inherits its existing F-key application mapping")
+            actions = []
+            consumer(usage, true)
+            router.assignments = []
+            consumer(usage, false)
+            check(actions == [inherited], "Inherited mapping remains stable until release")
+            actions = []
+            a.action = .text
+            router.assignments = [inherited, a]
+            consumer(usage, true)
+            consumer(usage, false)
+            check(actions == [a], "Explicit alternate override wins regardless of assignment order")
+            actions = []
+            a.action = .disable
+            router.assignments = [inherited, a]
+            consumer(usage, true)
+            consumer(usage, false)
+            check(actions.isEmpty, "Explicit alternate disable also overrides inherited assignment")
+            a.enabled = false
+            router.assignments = [a, inherited]
+            consumer(usage, true)
+            consumer(usage, false)
+            check(actions == [inherited], "Inactive alternate override permits F-key inheritance")
+            a.enabled = true
+            actions = []
+            inherited.enabled = false
+            router.assignments = [inherited]
+            consumer(usage, true)
+            consumer(usage, false)
+            check(
+                actions.count == 1 && actions[0].trigger == expected.trigger,
+                "Inactive F-key assignment preserves the consumer default")
+            actions = []
+            inherited.enabled = true
+            router.assignments = [inherited]
+            router.receive(
+                vendor: 0x0687, device: 9, page: 12, usage: usage, down: true,
+                physicalFlags: [])
+            router.receive(
+                vendor: 0x0687, device: 9, page: 12, usage: usage, down: false,
+                physicalFlags: [])
+            check(
+                actions == [inherited],
+                "Bluetooth consumer keys use the same assignment inheritance")
+            router.assignments = []
         }
         actions = []
         events = []

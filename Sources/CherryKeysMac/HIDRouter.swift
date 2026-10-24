@@ -147,6 +147,7 @@ final class HIDRouter {
             return
         }
         let trigger: Trigger
+        var inheritedTrigger: Trigger?
         let normal: Output
         if page == 7, let code = HIDKeyMap.keyboard[usage] {
             trigger = Trigger(kind: .key, code: code)
@@ -166,6 +167,7 @@ final class HIDRouter {
             normal = .media(code)
         } else if page == 12, let control = ConsumerControl(rawValue: Int(usage)) {
             trigger = Trigger(kind: .consumer, code: control.rawValue)
+            inheritedTrigger = control.functionTrigger
             normal = .action(control.defaultAssignment)
         } else {
             unsupported(
@@ -175,7 +177,8 @@ final class HIDRouter {
         }
         let a =
             flags.intersection(shortcutMask).isEmpty
-            ? assignments.first { $0.enabled && $0.trigger == trigger } : nil
+            ? (assignments.first { $0.enabled && $0.trigger == trigger }
+                ?? assignments.first { $0.enabled && $0.trigger == inheritedTrigger }) : nil
         let output: Output
         if let a {
             switch a.action {

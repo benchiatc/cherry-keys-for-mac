@@ -618,7 +618,7 @@ struct AssignmentEditor: View {
                     .disabled(recorder.active)
             }
             Text(
-                "For Detect key, press a key while this window is focused. Choose Browser Home, Calculator or Mail directly from Trigger for the alternate F8/F11/F12 functions. Some hardware controls do not send a remappable event."
+                "For Detect key, press a key while this window is focused. Alternate Browser Home, Calculator and Mail keys inherit F8/F11/F12 assignments. Choose their named triggers to override them separately. Some hardware controls do not send a remappable event."
             ).font(.caption).foregroundStyle(.secondary)
             Picker("Action", selection: $assignment.action) {
                 ForEach(ActionKind.allCases, id: \.self) { Text($0.title).tag($0) }

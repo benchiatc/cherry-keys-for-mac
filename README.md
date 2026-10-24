@@ -8,7 +8,7 @@
 
 I built this because the keyboard I wanted to use shipped with Windows-only [CHERRY KEYS software (official download)](https://www.cherry.de/en-gb/products/software-services/cherry-keys). I investigated its behavior, designed a native Mac alternative, and tested it against the real keyboard across every connection mode. The work went beyond mapping keys: isolating the right device, separating privileged capture from user actions, fixing Bluetooth LED feedback, and recovering after sleep and lock. Each fix followed a user-visible problem and a physical check. This project turns that work into an open-source foundation other Mac users can extend for their own CHERRY hardware.
 
-**4 connection modes verified · 72 routing checks + 10 recovery checks · 0 third-party runtime dependencies**
+**4 connection modes verified · 93 routing checks + 10 recovery checks · 0 third-party runtime dependencies**
 
 Swift and SwiftUI. MIT licensed. Independent community software, not affiliated with or endorsed by CHERRY.
 
@@ -193,7 +193,7 @@ The KW X ULP can send Consumer-page controls instead of regular function keys. S
 | Calculator (F11 alternate) | `12 / 0x192` | Open macOS Calculator |
 | Mail (F12 alternate) | `12 / 0x18A` | Open your default mail app without composing a message |
 
-Choose these named entries from **Trigger** to customize or disable them. They are separate from regular F8/F11/F12, so existing function-key assignments stay unchanged. Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. The v0.4.4 DMG predates this fix; physical acceptance of the new controls is pending.
+Alternate functions inherit enabled assignments on the corresponding **F8, F11 or F12** key. For example, an F12 → Launch application assignment also applies when F12 sends the Mail control. To give the alternate function its own behavior, choose its named entry from **Trigger**: an enabled alternate assignment takes priority, followed by the F-key assignment, then the default above. Existing settings require no migration. Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. The v0.4.4 DMG predates this fix. All three alternate defaults were physically confirmed over the F1 receiver on v0.4.5 build 14; assignment inheritance in build 15 has automated coverage and awaits physical confirmation.
 
 Usage names follow the [USB-IF HID Usage Tables](https://www.usb.org/sites/default/files/hut1_21_0.pdf). Browser Home uses the [standard Safari homepage shortcut](https://support.apple.com/en-gb/guide/safari/cpsh003/mac); the foreground application's shortcuts and settings determine its effect.
 
@@ -237,7 +237,7 @@ xcrun swift-format lint --strict --recursive Sources Tests
 
 The build produces a universal arm64/x86_64 app in `.build/package.noindex/Cherry Keys for Mac.app`. Install at exactly `/Applications/Cherry Keys for Mac.app`; that path is part of helper authentication. Never run the GUI or test suite as root.
 
-Coverage includes model validation and private persistence, 72 routing checks, 10 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
+Coverage includes model validation and private persistence, 93 routing checks, 10 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
 
 ### Signing and updates
 

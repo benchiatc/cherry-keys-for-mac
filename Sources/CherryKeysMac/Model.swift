@@ -143,6 +143,16 @@ enum ConsumerControl: Int, CaseIterable {
         case .mail: return "Mail (F12 alternate)"
         }
     }
+    /// Share an existing physical F-key assignment unless the alternate has its own override.
+    var functionTrigger: Trigger {
+        let code: Int
+        switch self {
+        case .browserHome: code = 100
+        case .calculator: code = 103
+        case .mail: code = 111
+        }
+        return Trigger(kind: .key, code: code)
+    }
     var defaultAssignment: Assignment {
         var assignment = Assignment()
         assignment.trigger = Trigger(kind: .consumer, code: rawValue)
