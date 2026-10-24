@@ -5,13 +5,11 @@ mkdir -p .build
 [[ $(id -u) != 0 ]] || { print -u2 'Run these tests as a normal user.'; exit 77; }
 swiftc -swift-version 5 Sources/CherryKeysMac/HelperSetupResult.swift Tests/HelperSetupTests.swift -o .build/HelperSetupTests -framework ServiceManagement -framework Foundation
 .build/HelperSetupTests
-SIGNING_DIR="$HOME/Library/Application Support/CherryKeysMac/Signing"
-SIGN_IDENTITY=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["sha1"])' "$SIGNING_DIR/identity.json")
 swiftc -swift-version 5 Sources/Shared/*.swift Tests/CaptureServiceTests.swift -o .build/CaptureServiceTests -framework Security -framework Foundation
-codesign --force --sign "$SIGN_IDENTITY" --keychain "$SIGNING_DIR/CherryKeys.keychain-db" --options runtime --timestamp=none --identifier local.cherrykeys.mac.tests .build/CaptureServiceTests
+python3 scripts/sign-local.py local.cherrykeys.mac.tests .build/CaptureServiceTests
 .build/CaptureServiceTests "$PWD"
 swiftc -swift-version 5 Sources/Shared/*.swift Tests/CaptureXPCTests.swift -o .build/CaptureXPCTests -framework Security -framework Foundation
-codesign --force --sign "$SIGN_IDENTITY" --keychain "$SIGNING_DIR/CherryKeys.keychain-db" --options runtime --timestamp=none --identifier local.cherrykeys.mac.tests.xpc .build/CaptureXPCTests
+python3 scripts/sign-local.py local.cherrykeys.mac.tests.xpc .build/CaptureXPCTests
 .build/CaptureXPCTests
 python3 - "$PWD/.build/package.noindex/Cherry Keys for Mac.app/Contents/MacOS/CherryKeysCaptureService" <<'PY'
 import subprocess,sys
@@ -23,5 +21,5 @@ print('PASS: managed broker rejects nonroot and unexpected arguments; no service
 PY
 
 swiftc -swift-version 5 Sources/Shared/*.swift Sources/CaptureService/CaptureExecutable.swift Tests/CaptureExecutableTests.swift -o .build/CaptureExecutableTests -framework Security -framework Foundation
-codesign --force --sign "$SIGN_IDENTITY" --keychain "$SIGNING_DIR/CherryKeys.keychain-db" --options runtime --timestamp=none --identifier local.cherrykeys.mac.tests.snapshot .build/CaptureExecutableTests
+python3 scripts/sign-local.py local.cherrykeys.mac.tests.snapshot .build/CaptureExecutableTests
 .build/CaptureExecutableTests "$PWD/.build/package.noindex/Cherry Keys for Mac.app/Contents/MacOS/CherryKeysHIDCapture"
