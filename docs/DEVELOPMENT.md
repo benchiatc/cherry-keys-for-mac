@@ -10,6 +10,8 @@ Format Swift with `xcrun swift-format format --in-place --recursive Sources Test
 
 ## Signing
 
+`scripts/sign-local.py` temporarily includes the isolated keychain in the user search list while signing, then restores the original list. This supports older macOS signing tools without changing certificate trust or the default keychain. Signing operations are serialized to avoid overlapping search-list changes.
+
 The isolated local identity is for source builders. All three executables must have the same certificate, with their respective identifiers. XPC and child validation pin that certificate. Do not distribute a private key or share a local signing identity with users.
 
 For public binary releases, implement and test an explicit Developer ID signing/notarization workflow and macOS compatibility matrix. The current scripts produce locally signed development builds, not notarized production releases. Never instruct users to disable Gatekeeper, SIP, signature validation or privacy controls. Replacing the signer can require macOS permission/helper reapproval.
