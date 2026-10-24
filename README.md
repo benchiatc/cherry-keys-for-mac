@@ -12,6 +12,15 @@ I built this because the keyboard I wanted to use shipped with Windows-only [CHE
 
 Swift and SwiftUI. MIT licensed. Independent community software, not affiliated with or endorsed by CHERRY.
 
+### What you can do
+
+- **Make the layout feel native:** remap keys and swap Windows/Alt to Command/Option.
+- **Launch Mac actions:** Spotlight, screenshots, Emoji & Symbols and media controls.
+- **Automate everyday tasks:** create shortcuts, text snippets and recorded keyboard macros.
+- **Keep your setup across connections:** use the same selected profile over the receiver, Bluetooth or USB cable.
+- **See your lock state:** synchronize Caps Lock and Num Lock behavior with their LEDs.
+- **Keep it running quietly:** use the menu bar and resume automatically after sleep or unlock.
+
 ## Contents
 
 - [Install and get started](#install-and-get-started)
