@@ -6,7 +6,7 @@
 
 **Make your CHERRY keyboard feel at home on a Mac.**
 
-I built this because the keyboard I wanted to use shipped with Windows-only software. I investigated its behavior, designed a native Mac alternative, and tested it against the real keyboard across every connection mode. The work went beyond mapping keys: isolating the right device, separating privileged capture from user actions, fixing Bluetooth LED feedback, and recovering after sleep and lock. Each fix followed a user-visible problem and a physical check. This project turns that work into an open-source foundation other Mac users can extend for their own CHERRY hardware.
+I built this because the keyboard I wanted to use shipped with Windows-only [CHERRY KEYS software (official download)](https://www.cherry.de/en-gb/products/software-services/cherry-keys). I investigated its behavior, designed a native Mac alternative, and tested it against the real keyboard across every connection mode. The work went beyond mapping keys: isolating the right device, separating privileged capture from user actions, fixing Bluetooth LED feedback, and recovering after sleep and lock. Each fix followed a user-visible problem and a physical check. This project turns that work into an open-source foundation other Mac users can extend for their own CHERRY hardware.
 
 **4 connection modes verified · 47 routing checks + 10 recovery checks · 0 third-party runtime dependencies**
 
