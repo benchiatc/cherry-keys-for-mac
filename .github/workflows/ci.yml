@@ -11,6 +11,12 @@ jobs:
         run: python3 scripts/check-public-source.py
       - name: Prepare ephemeral local signing identity
         run: python3 scripts/prepare-local-signing.py
+      - name: Signing diagnostics
+        run: |
+          sw_vers
+          xcodebuild -version
+          openssl version
+          security find-identity -p codesigning "$HOME/Library/Application Support/CherryKeysMac/Signing/CherryKeys.keychain-db"
       - name: Build universal app
         run: ./scripts/build.sh
       - name: Test without hardware or root
