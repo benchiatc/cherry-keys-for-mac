@@ -276,6 +276,24 @@ struct ModelTests {
                 }
             }
         }
+        test("Consumer triggers are allowlisted and persist independently of function keys") {
+            try temporaryStore { store, _ in
+                let assignments =
+                    ConsumerControl.allCases.map { $0.defaultAssignment }
+                    + [mapping(100), mapping(103), mapping(111)]
+                let config = configuration(assignments)
+                try store.save(config)
+                try check(try store.load() == config)
+                for control in ConsumerControl.allCases {
+                    try check(!control.title.isEmpty)
+                }
+                for code in [-1, 0, 16, 0x224, 0xffff, Int.max] {
+                    try rejects("unknown consumer control") {
+                        try mapping(code, kind: .consumer).validate()
+                    }
+                }
+            }
+        }
         test("Assignments require unique stable identifiers within a profile") {
             var first = mapping(122)
             first.id = UUID()

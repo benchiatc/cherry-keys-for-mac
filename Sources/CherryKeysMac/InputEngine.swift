@@ -66,6 +66,26 @@ final class ActionRunner {
     private func perform(_ a: Assignment, token: Int) throws {
         guard current(token) else { return }
         switch a.action {
+        case .defaultMail:
+            // Resolve the user's mail handler locally, then launch it without composing a message.
+            DispatchQueue.main.async {
+                guard self.current(token) else { return }
+                guard
+                    let app = NSWorkspace.shared.urlForApplication(toOpen: URL(string: "mailto:")!)
+                else {
+                    self.onResult?("No default mail app is configured.")
+                    return
+                }
+                NSWorkspace.shared.openApplication(
+                    at: app, configuration: NSWorkspace.OpenConfiguration()
+                ) { _, error in
+                    if error != nil {
+                        DispatchQueue.main.async {
+                            self.onResult?("Could not open the default mail app.")
+                        }
+                    }
+                }
+            }
         case .application, .file, .website:
             let url = a.action == .website ? URL(string: a.value)! : URL(fileURLWithPath: a.value)
             DispatchQueue.main.async {

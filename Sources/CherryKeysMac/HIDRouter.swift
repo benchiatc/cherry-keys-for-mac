@@ -164,6 +164,9 @@ final class HIDRouter {
         } else if page == 12, let code = HIDKeyMap.media[usage] {
             trigger = Trigger(kind: .media, code: code)
             normal = .media(code)
+        } else if page == 12, let control = ConsumerControl(rawValue: Int(usage)) {
+            trigger = Trigger(kind: .consumer, code: control.rawValue)
+            normal = .action(control.defaultAssignment)
         } else {
             unsupported(
                 "Unsupported CHERRY key (HID page \(page), usage 0x\(String(usage, radix:16))). Remapping paused and native input restored."

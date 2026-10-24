@@ -120,6 +120,68 @@ struct InputEngineTests {
         router.receive(
             vendor: 0x046a, device: 1, page: 12, usage: 0xcd, down: false, physicalFlags: [])
         check(events.isEmpty, "CHERRY media assignment suppresses native media behavior")
+        router.releaseAll()
+        router.assignments = []
+        actions = []
+        errors = []
+        func consumer(_ usage: UInt32, _ down: Bool, vendor: Int = 0x046a) {
+            router.receive(
+                vendor: vendor, device: 1, page: 12, usage: usage, down: down,
+                physicalFlags: [])
+        }
+        for control in ConsumerControl.allCases {
+            let usage = UInt32(control.rawValue)
+            actions = []
+            consumer(usage, true)
+            consumer(usage, true)
+            check(
+                actions.isEmpty && errors.isEmpty, "Alternate key waits for release without pausing"
+            )
+            consumer(usage, false)
+            consumer(usage, false)
+            let expected = control.defaultAssignment
+            check(
+                actions.count == 1 && actions[0].trigger == expected.trigger
+                    && actions[0].action == expected.action && actions[0].value == expected.value
+                    && actions[0].outputKey == expected.outputKey
+                    && actions[0].modifiers == expected.modifiers,
+                "Alternate key dispatches its default exactly once")
+            check(events.isEmpty, "Consumer launch keys do not emit unrelated NX media events")
+            actions = []
+            consumer(usage, true, vendor: 0x046d)
+            consumer(usage, false, vendor: 0x046d)
+            check(actions.isEmpty, "Non-CHERRY consumer keys stay native")
+            a.trigger = expected.trigger
+            a.action = .text
+            a.value = "custom"
+            router.assignments = [a]
+            consumer(usage, true)
+            consumer(usage, false)
+            check(actions == [a], "Explicit consumer assignment overrides its default")
+            a.action = .disable
+            router.assignments = [a]
+            actions = []
+            consumer(usage, true)
+            consumer(usage, false)
+            check(actions.isEmpty, "Consumer key can be disabled without pausing capture")
+            router.assignments = []
+            consumer(usage, true)
+            router.releaseAll()
+            check(actions.isEmpty, "Pause cancels a held consumer action")
+        }
+        actions = []
+        events = []
+        for (usage, code) in [(UInt32(0x41), 100), (0x44, 103), (0x45, 111)] {
+            key(0x046a, 1, usage, true)
+            key(0x046a, 1, usage, false)
+            check(
+                events.last!.getIntegerValueField(.keyboardEventKeycode) == code
+                    && actions.isEmpty, "Regular F8/F11/F12 remain independent of consumer defaults"
+            )
+        }
+        consumer(0x7fff, true)
+        check(errors.count == 1, "Unknown consumer usage still restores native input safely")
+        errors = []
         key(0x046a, 1, 0xff, true)
         check(
             errors.count == 1,

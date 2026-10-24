@@ -28,3 +28,7 @@ Do not treat a model ID, firmware revision, USB port, registry ID or driver-exte
 - Approval/setup, helper removal and reboot behavior on a clean macOS user account.
 
 KW X ULP acceptance covered typing, modifier remapping, Caps/Num behavior/LEDs in all four modes and recapture across Bluetooth/wired changes. It did not exhaust the full checklist. Physical feedback cannot be inferred from unit tests or successful HID writes alone.
+
+## Consumer launch controls
+
+The observed KW X ULP alternate F8, F11 and F12 usages are Consumer page `12`: `0x223` (AC Home), `0x192` (AL Calculator) and `0x18A` (AL Email Reader). `ConsumerControl` keeps their raw usages in a separate persisted trigger namespace, rather than mislabelling them as NX media codes or standard F-keys. The GUI provides an explicit picker because macOS may not expose these controls to its local event monitor. Defaults execute in the unprivileged GUI on release; assignments override them, and Pause/disconnect cancel pending actions. Unknown usages retain the native-input recovery path. Routing and persistence have automated coverage; physical acceptance of these three controls is pending.

@@ -1,16 +1,20 @@
 import Foundation
 
 struct Trigger: Codable, Equatable, Hashable {
-    enum Kind: String, Codable { case key, media }
+    enum Kind: String, Codable { case key, media, consumer }
     var kind: Kind = .key
     var code: Int = 122
     var title: String {
-        kind == .media ? (KeyCatalog.media[code] ?? "Media \(code)") : KeyCatalog.name(code)
+        switch kind {
+        case .key: return KeyCatalog.name(code)
+        case .media: return KeyCatalog.media[code] ?? "Media \(code)"
+        case .consumer: return ConsumerControl(rawValue: code)?.title ?? "Consumer \(code)"
+        }
     }
 }
 enum ActionKind: String, Codable, CaseIterable {
     case modifier, macAction, shortcut, text, macro, application, file, website, media, browserBack,
-        browserForward, disable, lock, sleep
+        browserForward, defaultMail, disable, lock, sleep
     var title: String {
         switch self {
         case .modifier: return "Modifier key"
@@ -24,6 +28,7 @@ enum ActionKind: String, Codable, CaseIterable {
         case .media: return "Media control"
         case .browserBack: return "Browser back"
         case .browserForward: return "Browser forward"
+        case .defaultMail: return "Open default mail app"
         case .disable: return "Disable key"
         case .lock: return "Lock screen"
         case .sleep: return "Sleep Mac"
@@ -61,7 +66,13 @@ struct Assignment: Codable, Identifiable, Equatable {
         guard value.utf8.count <= 65536, steps.count <= 4000 else {
             throw AppError.message("Assignment exceeds size limits.")
         }
-        if trigger.code < 0 || trigger.code > (trigger.kind == .key ? 127 : 255) {
+        let validTrigger: Bool
+        switch trigger.kind {
+        case .key: validTrigger = (0...127).contains(trigger.code)
+        case .media: validTrigger = (0...255).contains(trigger.code)
+        case .consumer: validTrigger = ConsumerControl(rawValue: trigger.code) != nil
+        }
+        if !validTrigger {
             throw AppError.message("Invalid trigger key.")
         }
         if trigger.kind == .key && [57, 63].contains(trigger.code) {
@@ -115,6 +126,39 @@ struct Assignment: Codable, Identifiable, Equatable {
         if action == .media && KeyCatalog.media[mediaCode] == nil {
             throw AppError.message("Invalid media action.")
         }
+    }
+}
+
+/// USB HID Consumer-page controls, kept separate from Quartz keys and NX media codes.
+/// An explicit allowlist prevents arbitrary usages from becoming launch actions.
+enum ConsumerControl: Int, CaseIterable {
+    case browserHome = 0x223
+    case calculator = 0x192
+    case mail = 0x18a
+
+    var title: String {
+        switch self {
+        case .browserHome: return "Browser Home (F8 alternate)"
+        case .calculator: return "Calculator (F11 alternate)"
+        case .mail: return "Mail (F12 alternate)"
+        }
+    }
+    var defaultAssignment: Assignment {
+        var assignment = Assignment()
+        assignment.trigger = Trigger(kind: .consumer, code: rawValue)
+        switch self {
+        case .browserHome:
+            // Safari/Chrome's Home shortcut; the foreground app handles it.
+            assignment.action = .shortcut
+            assignment.outputKey = 4
+            assignment.modifiers = (1 << 20) | (1 << 17)
+        case .calculator:
+            assignment.action = .application
+            assignment.value = "/System/Applications/Calculator.app"
+        case .mail:
+            assignment.action = .defaultMail
+        }
+        return assignment
     }
 }
 struct Profile: Codable, Identifiable, Equatable {

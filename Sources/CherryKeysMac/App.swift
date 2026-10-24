@@ -604,6 +604,9 @@ struct AssignmentEditor: View {
                     ForEach(KeyCatalog.media.keys.sorted(), id: \.self) { code in
                         Text(KeyCatalog.media[code]!).tag(Trigger(kind: .media, code: code))
                     }
+                    ForEach(ConsumerControl.allCases, id: \.self) { control in
+                        Text(control.title).tag(Trigger(kind: .consumer, code: control.rawValue))
+                    }
                     if !KeyCatalog.functionKeys.contains(assignment.trigger.code)
                         && !KeyCatalog.modifierKeys.contains(assignment.trigger.code)
                         && assignment.trigger.kind == .key
@@ -615,7 +618,7 @@ struct AssignmentEditor: View {
                     .disabled(recorder.active)
             }
             Text(
-                "For Detect key, press a key while this window is focused. Some Fn and hardware controls do not send a remappable event."
+                "For Detect key, press a key while this window is focused. Choose Browser Home, Calculator or Mail directly from Trigger for the alternate F8/F11/F12 functions. Some hardware controls do not send a remappable event."
             ).font(.caption).foregroundStyle(.secondary)
             Picker("Action", selection: $assignment.action) {
                 ForEach(ActionKind.allCases, id: \.self) { Text($0.title).tag($0) }
@@ -687,6 +690,9 @@ struct AssignmentEditor: View {
                 case .browserBack, .browserForward:
                     Text("Sends the standard macOS browser navigation shortcut.").foregroundStyle(
                         .secondary)
+                case .defaultMail:
+                    Text("Opens the mail app selected in macOS without composing a message.")
+                        .foregroundStyle(.secondary)
                 case .disable:
                     Text("The trigger is suppressed while remapping is enabled.").foregroundStyle(
                         .secondary)
