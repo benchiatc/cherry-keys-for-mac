@@ -168,59 +168,62 @@ struct InputEngineTests {
             consumer(usage, true)
             router.releaseAll()
             check(actions.isEmpty, "Pause cancels a held consumer action")
-            var inherited = Assignment()
-            inherited.trigger = control.functionTrigger
-            inherited.action = .application
-            inherited.value = "/System/Applications/Calculator.app"
-            router.assignments = [inherited]
-            consumer(usage, true)
-            consumer(usage, false)
-            check(
-                actions == [inherited],
-                "Alternate key inherits its existing F-key application mapping")
-            actions = []
-            consumer(usage, true)
-            router.assignments = []
-            consumer(usage, false)
-            check(actions == [inherited], "Inherited mapping remains stable until release")
-            actions = []
-            a.action = .text
-            router.assignments = [inherited, a]
-            consumer(usage, true)
-            consumer(usage, false)
-            check(actions == [a], "Explicit alternate override wins regardless of assignment order")
-            actions = []
-            a.action = .disable
-            router.assignments = [inherited, a]
-            consumer(usage, true)
-            consumer(usage, false)
-            check(actions.isEmpty, "Explicit alternate disable also overrides inherited assignment")
-            a.enabled = false
-            router.assignments = [a, inherited]
-            consumer(usage, true)
-            consumer(usage, false)
-            check(actions == [inherited], "Inactive alternate override permits F-key inheritance")
-            a.enabled = true
-            actions = []
-            inherited.enabled = false
-            router.assignments = [inherited]
+            let standardKey: (usage: UInt32, code: Int)
+            switch control {
+            case .browserHome: standardKey = (0x41, 100)
+            case .calculator: standardKey = (0x44, 103)
+            case .mail: standardKey = (0x45, 111)
+            }
+            var standard = Assignment()
+            standard.trigger = Trigger(kind: .key, code: standardKey.code)
+            standard.action = .text
+            standard.value = "standard layer"
+            router.assignments = [standard]
             consumer(usage, true)
             consumer(usage, false)
             check(
                 actions.count == 1 && actions[0].trigger == expected.trigger,
-                "Inactive F-key assignment preserves the consumer default")
+                "Standard F-key assignment must not replace the preset default")
             actions = []
-            inherited.enabled = true
-            router.assignments = [inherited]
+            key(0x046a, 1, standardKey.usage, true)
+            key(0x046a, 1, standardKey.usage, false)
+            check(actions == [standard], "Standard F-key retains its independent assignment")
+            actions = []
+            a.action = .application
+            a.value = "/System/Applications/Calculator.app"
+            router.assignments = [standard, a]
+            consumer(usage, true)
+            consumer(usage, false)
+            check(actions == [a], "Preset layer uses only its own application assignment")
+            actions = []
+            key(0x046a, 1, standardKey.usage, true)
+            key(0x046a, 1, standardKey.usage, false)
+            check(actions == [standard], "Preset application assignment cannot leak into Fn layer")
+            actions = []
+            consumer(usage, true)
+            router.assignments = []
+            consumer(usage, false)
+            check(actions == [a], "Preset mapping remains stable until release after profile edit")
+            actions = []
+            a.action = .disable
+            router.assignments = [standard, a]
+            consumer(usage, true)
+            consumer(usage, false)
+            key(0x046a, 1, standardKey.usage, true)
+            key(0x046a, 1, standardKey.usage, false)
+            check(
+                actions == [standard],
+                "Disabling preset leaves the standard F-key assignment intact")
+            actions = []
+            a.action = .application
+            router.assignments = [a]
             router.receive(
                 vendor: 0x0687, device: 9, page: 12, usage: usage, down: true,
                 physicalFlags: [])
             router.receive(
                 vendor: 0x0687, device: 9, page: 12, usage: usage, down: false,
                 physicalFlags: [])
-            check(
-                actions == [inherited],
-                "Bluetooth consumer keys use the same assignment inheritance")
+            check(actions == [a], "Bluetooth consumer keys preserve the independent preset mapping")
             router.assignments = []
         }
         actions = []

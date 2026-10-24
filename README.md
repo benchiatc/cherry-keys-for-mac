@@ -189,11 +189,15 @@ The KW X ULP can send Consumer-page controls instead of regular function keys. S
 
 | Trigger in the editor | HID page / usage | Default behavior |
 | --- | --- | --- |
-| Browser Home (F8 alternate) | `12 / 0x223` | Send Command–Shift–H to the foreground app; supported browsers use it for their homepage |
-| Calculator (F11 alternate) | `12 / 0x192` | Open macOS Calculator |
-| Mail (F12 alternate) | `12 / 0x18A` | Open your default mail app without composing a message |
+| F8 — Browser Home (preset) | `12 / 0x223` | Send Command–Shift–H to the foreground app; supported browsers use it for their homepage |
+| F11 — Calculator (preset) | `12 / 0x192` | Open macOS Calculator |
+| F12 — Mail (preset) | `12 / 0x18A` | Open your default mail app without composing a message |
 
-Alternate functions inherit enabled assignments on the corresponding **F8, F11 or F12** key. For example, an F12 → Launch application assignment also applies when F12 sends the Mail control. To give the alternate function its own behavior, choose its named entry from **Trigger**: an enabled alternate assignment takes priority, followed by the F-key assignment, then the default above. Existing settings require no migration. Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. The v0.4.4 DMG predates this fix. All three alternate defaults were physically confirmed over the F1 receiver on v0.4.5 build 14; assignment inheritance in build 15 has automated coverage and awaits physical confirmation.
+**Preset functions and standard F-keys are independently assignable.** With the KW X ULP Fn light off, F8/F11/F12 send the presets above; holding Fn sends standard F8/F11/F12. Ctrl+Fn changes Fn Lock and reverses the layers. The app labels the two choices, for example **F12 — Mail (preset)** and **Fn + F12 — standard F12**, and explains this in the main window and assignment editor. Labels describe the Fn-light-off arrangement; the app routes the event actually sent by the keyboard and does not read the Fn light.
+
+Choose the preset trigger to replace its built-in action, or the standard F-key trigger to assign the Fn layer. There is no inheritance between them. For example, assign **F12 — Mail (preset)** to a mail application while leaving **Fn + F12 — standard F12** unassigned or mapping it to something else. Other models' Fn layouts may differ. Existing saved triggers retain their meaning; builds do not automatically move users' assignments between layers.
+
+Defaults and custom launch actions run once on release. Unknown controls still release capture and restore native input instead of silently swallowing a key. The v0.4.4 DMG predates this fix. All three preset defaults were physically confirmed over the F1 receiver on v0.4.5 build 14. Build 16 has automated coverage for independent layers and awaits physical confirmation.
 
 Usage names follow the [USB-IF HID Usage Tables](https://www.usb.org/sites/default/files/hut1_21_0.pdf). Browser Home uses the [standard Safari homepage shortcut](https://support.apple.com/en-gb/guide/safari/cpsh003/mac); the foreground application's shortcuts and settings determine its effect.
 

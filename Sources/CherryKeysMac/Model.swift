@@ -6,8 +6,8 @@ struct Trigger: Codable, Equatable, Hashable {
     var code: Int = 122
     var title: String {
         switch kind {
-        case .key: return KeyCatalog.name(code)
-        case .media: return KeyCatalog.media[code] ?? "Media \(code)"
+        case .key: return KeyCatalog.triggerName(code)
+        case .media: return (KeyCatalog.media[code] ?? "Media \(code)") + " — preset"
         case .consumer: return ConsumerControl(rawValue: code)?.title ?? "Consumer \(code)"
         }
     }
@@ -138,20 +138,10 @@ enum ConsumerControl: Int, CaseIterable {
 
     var title: String {
         switch self {
-        case .browserHome: return "Browser Home (F8 alternate)"
-        case .calculator: return "Calculator (F11 alternate)"
-        case .mail: return "Mail (F12 alternate)"
+        case .browserHome: return "F8 — Browser Home (preset)"
+        case .calculator: return "F11 — Calculator (preset)"
+        case .mail: return "F12 — Mail (preset)"
         }
-    }
-    /// Share an existing physical F-key assignment unless the alternate has its own override.
-    var functionTrigger: Trigger {
-        let code: Int
-        switch self {
-        case .browserHome: code = 100
-        case .calculator: code = 103
-        case .mail: code = 111
-        }
-        return Trigger(kind: .key, code: code)
     }
     var defaultAssignment: Assignment {
         var assignment = Assignment()
@@ -293,6 +283,10 @@ enum KeyCatalog {
         122, 120, 99, 118, 96, 97, 98, 100, 101, 109, 103, 111, 105, 107, 113, 106, 64, 79, 80, 90,
     ]
     static func name(_ code: Int) -> String { names[code] ?? "Key \(code)" }
+    static func triggerName(_ code: Int) -> String {
+        functionKeys.prefix(12).contains(code)
+            ? "Fn + \(name(code)) — standard \(name(code))" : name(code)
+    }
     static func modifierLabel(_ flags: UInt64) -> String {
         [
             (UInt64(1 << 18), "⌃"), (UInt64(1 << 19), "⌥"), (UInt64(1 << 17), "⇧"),

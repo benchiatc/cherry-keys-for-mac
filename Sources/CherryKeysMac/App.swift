@@ -475,6 +475,9 @@ struct ContentView: View {
                         Button("Export…") { model.exportSettings() }
                     }
                 }
+                Text(
+                    "Two independent layers: preset functions and standard F-keys. With the KW X ULP Fn light off, hold Fn for standard F-keys. Ctrl+Fn switches Fn Lock and reverses the layers."
+                ).font(.caption).foregroundStyle(.secondary)
                 if !model.trusted || !model.inputMonitoring {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
@@ -598,14 +601,26 @@ struct AssignmentEditor: View {
             Text("CHERRY keys and modifiers").font(.caption).foregroundStyle(.secondary)
             HStack {
                 Picker("Trigger", selection: $assignment.trigger) {
-                    ForEach(KeyCatalog.modifierKeys + KeyCatalog.functionKeys, id: \.self) { code in
-                        Text(KeyCatalog.name(code)).tag(Trigger(kind: .key, code: code))
+                    Section("Preset functions — Fn light off") {
+                        ForEach(ConsumerControl.allCases, id: \.self) { control in
+                            Text(control.title).tag(
+                                Trigger(kind: .consumer, code: control.rawValue))
+                        }
+                        ForEach(KeyCatalog.media.keys.sorted(), id: \.self) { code in
+                            let trigger = Trigger(kind: .media, code: code)
+                            Text(trigger.title).tag(trigger)
+                        }
                     }
-                    ForEach(KeyCatalog.media.keys.sorted(), id: \.self) { code in
-                        Text(KeyCatalog.media[code]!).tag(Trigger(kind: .media, code: code))
+                    Section("Standard F-keys — hold Fn when Fn light is off") {
+                        ForEach(KeyCatalog.functionKeys, id: \.self) { code in
+                            let trigger = Trigger(kind: .key, code: code)
+                            Text(trigger.title).tag(trigger)
+                        }
                     }
-                    ForEach(ConsumerControl.allCases, id: \.self) { control in
-                        Text(control.title).tag(Trigger(kind: .consumer, code: control.rawValue))
+                    Section("Modifier keys") {
+                        ForEach(KeyCatalog.modifierKeys, id: \.self) { code in
+                            Text(KeyCatalog.name(code)).tag(Trigger(kind: .key, code: code))
+                        }
                     }
                     if !KeyCatalog.functionKeys.contains(assignment.trigger.code)
                         && !KeyCatalog.modifierKeys.contains(assignment.trigger.code)
@@ -618,7 +633,7 @@ struct AssignmentEditor: View {
                     .disabled(recorder.active)
             }
             Text(
-                "For Detect key, press a key while this window is focused. Alternate Browser Home, Calculator and Mail keys inherit F8/F11/F12 assignments. Choose their named triggers to override them separately. Some hardware controls do not send a remappable event."
+                "Preset functions and Fn + F-keys have separate assignments. With the KW X ULP Fn light off, F12 sends Mail; Fn + F12 sends standard F12. Ctrl+Fn reverses these layers. For preset launch keys, choose the named trigger above; Detect key may not see them."
             ).font(.caption).foregroundStyle(.secondary)
             Picker("Action", selection: $assignment.action) {
                 ForEach(ActionKind.allCases, id: \.self) { Text($0.title).tag($0) }

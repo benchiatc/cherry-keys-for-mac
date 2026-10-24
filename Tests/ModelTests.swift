@@ -294,6 +294,16 @@ struct ModelTests {
                 }
             }
         }
+        test("Trigger labels distinguish preset functions from standard Fn keys") {
+            try check(Trigger(kind: .key, code: 111).title == "Fn + F12 — standard F12")
+            try check(Trigger(kind: .consumer, code: 0x18a).title == "F12 — Mail (preset)")
+            try check(Trigger(kind: .key, code: 100).title.contains("Fn + F8"))
+            try check(Trigger(kind: .consumer, code: 0x223).title.contains("preset"))
+            try check(Trigger(kind: .key, code: 55).title == "Left Command")
+            try check(
+                KeyCatalog.name(111) == "F12", "Output key names must stay independent of Fn labels"
+            )
+        }
         test("Assignments require unique stable identifiers within a profile") {
             var first = mapping(122)
             first.id = UUID()
