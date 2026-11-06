@@ -72,6 +72,11 @@ def render(markdown):
 
     for line in markdown.splitlines() + ['']:
         stripped = line.strip()
+        # README disclosure controls do not belong in the fully expanded offline guide.
+        if stripped in {'<details>', '</details>'} or (
+            stripped.startswith('<summary>') and stripped.endswith('</summary>')
+        ):
+            continue
         if not stripped:
             flush()
             close_list()

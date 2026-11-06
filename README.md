@@ -60,6 +60,9 @@ These pictures were captured on macOS 27.0.1. Older versions may use different n
 
 **Before you start:** connect your CHERRY keyboard using its receiver, Bluetooth or USB cable. If you are upgrading, quit the old app first. If the release changes its helper or signing identity, follow the [upgrade instructions](docs/DEVELOPMENT.md#upgrades-and-removal) before replacing it. If Karabiner-Elements, BetterTouchTool or another keyboard app has CHERRY-specific mappings, turn those mappings off to avoid conflicts.
 
+<details>
+<summary><strong>Step-by-step installation guide — steps 1–11, screenshots and troubleshooting</strong></summary>
+
 #### 1. Download the installer, not the source code
 
 Open the project's **[GitHub Releases page](https://github.com/benchiatc/cherry-keys-for-mac/releases)**. Open the release you want, scroll to **Assets**, and click the file whose name ends in **`.dmg`**. If Assets is collapsed, click it to expand the list.
@@ -205,6 +208,8 @@ You can now close the Cherry Keys window; it continues in the menu bar. Each fre
 
 If you still need help, note your macOS version, app version, keyboard connection, the step where setup stopped and the exact on-screen error. Keep passwords, profile exports and private device details out of public reports.
 
+</details>
+
 ### Option B: Build from source
 
 **Choose this if you want to explore the code, make changes, support another keyboard or contribute.** This route creates the app directly from the source on your Mac, ready for your own development workflow.
@@ -227,7 +232,7 @@ If you still need help, note your macOS version, app version, keyboard connectio
    ```
 
 6. When Finder opens, drag **Cherry Keys for Mac.app** into **Applications**. Keep its name unchanged, then open it from Applications.
-7. Continue at **step 5** in [Finish setup](#finish-setup-both-options) above; source builds need the same permissions and helper approval. For tests and development tools, see [Build, test and distribute](#build-test-and-distribute).
+7. Expand the **Step-by-step installation guide** above and continue at **step 5** in [Finish setup](#finish-setup-both-options); source builds need the same permissions and helper approval. For tests and development tools, see [Build, test and distribute](#build-test-and-distribute).
 
 The build can take a few minutes. If a command reports an error, stop there and include that error in a support request—do not run the commands with `sudo`. Before replacing an existing installation, quit it and follow the [upgrade instructions](docs/DEVELOPMENT.md#upgrades-and-removal).
 
