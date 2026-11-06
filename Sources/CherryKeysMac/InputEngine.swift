@@ -179,6 +179,8 @@ extension Double {
 /// The GUI stays unprivileged. An approved, certificate-pinned macOS service starts
 /// a bounded capture child. The child exits when this socket stops responding.
 final class InputEngine {
+    private var pointerTap: CFMachPort?
+    private var pointerSource: CFRunLoopSource?
     private var listener: DispatchSourceRead?
     private var input: DispatchSourceRead?
     private var connection: Int32 = -1
@@ -261,6 +263,7 @@ final class InputEngine {
             attributes: [.posixPermissions: 0o700])
         self.directory = directory
         do {
+            try startPointerTap()
             let socketFD = Darwin.socket(AF_UNIX, SOCK_STREAM, 0)
             guard socketFD >= 0 else {
                 throw AppError.message("Could not create local capture socket.")
@@ -342,6 +345,44 @@ final class InputEngine {
             throw error
         }
     }
+    private func startPointerTap() throws {
+        let types: [CGEventType] = [
+            .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp,
+            .otherMouseDown, .otherMouseUp, .mouseMoved,
+            .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel,
+        ]
+        let mask = types.reduce(CGEventMask(0)) { $0 | (CGEventMask(1) << $1.rawValue) }
+        guard
+            let tap = CGEvent.tapCreate(
+                tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
+                eventsOfInterest: mask,
+                callback: { _, type, event, context in
+                    guard let context else { return Unmanaged.passUnretained(event) }
+                    let engine = Unmanaged<InputEngine>.fromOpaque(context).takeUnretainedValue()
+                    if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+                        if engine.running, let tap = engine.pointerTap {
+                            CGEvent.tapEnable(tap: tap, enable: true)
+                        }
+                    } else if engine.running {
+                        event.flags = engine.router.pointerFlags(event.flags)
+                    }
+                    return Unmanaged.passUnretained(event)
+                }, userInfo: Unmanaged.passUnretained(self).toOpaque())
+        else {
+            throw AppError.message(
+                "Could not enable modifier support for mouse input. Check Accessibility permission and reopen the app."
+            )
+        }
+        guard let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0) else {
+            CFMachPortInvalidate(tap)
+            throw AppError.message("Could not start modifier support for mouse input.")
+        }
+        pointerTap = tap
+        pointerSource = source
+        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+        CGEvent.tapEnable(tap: tap, enable: true)
+    }
+
     private func accept(_ socketFD: Int32, session id: UUID) {
         guard running && session == id else { return }
         while true {
@@ -521,6 +562,15 @@ final class InputEngine {
         resumeTimer = nil
         lastIndicatorByte = nil
         running = false
+        if let pointerTap {
+            CGEvent.tapEnable(tap: pointerTap, enable: false)
+            CFMachPortInvalidate(pointerTap)
+        }
+        if let pointerSource {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), pointerSource, .commonModes)
+        }
+        pointerSource = nil
+        pointerTap = nil
         session = UUID()
         heartbeat?.invalidate()
         heartbeat = nil

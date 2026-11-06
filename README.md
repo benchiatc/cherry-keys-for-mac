@@ -8,11 +8,13 @@
 
 I built this because the keyboard I wanted to use shipped with Windows-only [CHERRY KEYS software (official download)](https://www.cherry.de/en-gb/products/software-services/cherry-keys). I investigated its behavior, designed a native Mac alternative, and tested it against the real keyboard across every connection mode. The work went beyond mapping keys: isolating the right device, separating privileged capture from user actions, fixing Bluetooth LED feedback, and recovering after sleep and lock. Each fix followed a user-visible problem and a physical check. This project turns that work into an open-source foundation other Mac users can extend for their own CHERRY hardware.
 
-**4 connection modes verified · 171 key/transport checks + 10 recovery checks · 0 third-party runtime dependencies**
+**4 connection modes verified · 183 key/transport checks + 10 recovery checks · 0 third-party runtime dependencies**
 
 Swift and SwiftUI. MIT licensed. Independent community software, not affiliated with or endorsed by CHERRY.
 
-Current preview: **v0.4.5 (build 16)** · [Changelog](CHANGELOG.md) · [GitHub release](https://github.com/benchiatc/cherry-keys-for-mac/releases/tag/v0.4.5)
+Current preview: **v0.4.6 (build 18)** · [Changelog](CHANGELOG.md) · [GitHub release](https://github.com/benchiatc/cherry-keys-for-mac/releases/tag/v0.4.6)
+
+**v0.4.6 restores modifier + mouse shortcuts**, including TradingView's Shift-click ruler. The fix was physically confirmed on the F1 receiver in local v0.4.5 build 17; build 18 carries the same fix with updated release metadata. Download v0.4.6 using the illustrated installation guide below. The [previous v0.4.5 build 16](https://github.com/benchiatc/cherry-keys-for-mac/releases/tag/v0.4.5) does not contain this fix.
 
 ### What you can do
 
@@ -20,6 +22,7 @@ Current preview: **v0.4.5 (build 16)** · [Changelog](CHANGELOG.md) · [GitHub r
 - **Customize both layers:** assign preset commands and standard Fn + F-keys independently.
 - **Launch Mac actions:** Spotlight, screenshots, Emoji & Symbols and media controls.
 - **Automate everyday tasks:** create shortcuts, text snippets and recorded keyboard macros.
+- **Use modifiers with your mouse:** keep Shift-click, Command-click and other modifier combinations while remapping is active.
 - **Keep your setup across connections:** use the same selected profile over the receiver, Bluetooth or USB cable.
 - **See your lock state:** synchronize Caps Lock and Num Lock behavior with their LEDs.
 - **Keep it running quietly:** use the menu bar and resume automatically after sleep or unlock.
@@ -51,19 +54,156 @@ Both options install the same app and use the same macOS permission setup.
 
 ### Option A: Install the DMG
 
-**Choose this if you just want to use the app.** You do not need to download the source code or build anything.
+**Start here if you just want to use the app.** No Terminal, coding tools or GitHub account is needed. Copying the app is only the first part: you must also complete the two permissions and helper approval in steps 5–9 before enabling remapping.
 
-1. Download **[CherryKeysMac-0.4.5-macOS-universal.dmg](https://github.com/benchiatc/cherry-keys-for-mac/releases/download/v0.4.5/CherryKeysMac-0.4.5-macOS-universal.dmg)**. The packaged app is in `dist/app/`.
-2. Double-click the DMG to open it.
-3. Drag **Cherry Keys for Mac.app** onto the **Applications** shortcut in the window.
-4. Eject the disk image, then open **Cherry Keys for Mac** from Applications.
-5. Continue with [Finish setup](#finish-setup-both-options) below.
+These pictures were captured on macOS 27.0.1. Older versions may use different names; the steps below give the alternatives. Click a picture to enlarge it. The first-run app pictures are labelled previews with a sample profile. The macOS permission pictures show what the switches look like when enabled; unrelated entries are hidden.
 
-Keep the app's name unchanged. If an older copy is installed, quit it before replacing it; see [upgrade instructions](docs/DEVELOPMENT.md#upgrades-and-removal) if its helper changed.
+**Before you start:** connect your CHERRY keyboard using its receiver, Bluetooth or USB cable. If you are upgrading, quit the old app first. If the release changes its helper or signing identity, follow the [upgrade instructions](docs/DEVELOPMENT.md#upgrades-and-removal) before replacing it. If Karabiner-Elements, BetterTouchTool or another keyboard app has CHERRY-specific mappings, turn those mappings off to avoid conflicts.
 
-**Already using another keyboard app?** If your CHERRY keyboard is mapped in Karabiner-Elements, BetterTouchTool or a similar app, disable those mappings for the CHERRY keyboard before enabling Cherry Keys. Running both can cause conflicting shortcuts or prevent Cherry Keys from accessing the keyboard.
+#### 1. Download the installer, not the source code
 
-The current DMG is a locally signed development build. A public Apple-notarized release has not been published yet; see [signing and updates](#signing-and-updates) for release details.
+Open the project's **[GitHub Releases page](https://github.com/benchiatc/cherry-keys-for-mac/releases)**. Open the release you want, scroll to **Assets**, and click the file whose name ends in **`.dmg`**. If Assets is collapsed, click it to expand the list.
+
+For v0.4.6, download **[CherryKeysMac-0.4.6-macOS-universal.dmg](https://github.com/benchiatc/cherry-keys-for-mac/releases/download/v0.4.6/CherryKeysMac-0.4.6-macOS-universal.dmg)**. The screenshot shows v0.4.5 as an example; the filename's version will change with releases. “Universal” means the same installer works on Apple silicon and Intel Macs.
+
+Choose the **DMG**, rather than `CherryKeysMac-source.zip`, **Source code (zip)** or **Source code (tar.gz)**. Those are for developers. If your browser asks whether to allow downloads from GitHub, choose **Allow**. When the download finishes, look in **Finder → Downloads**, or use your browser's Downloads button.
+
+![GitHub release Assets with the DMG installer outlined](docs/images/install/01-download.png)
+
+#### 2. Open the DMG and copy the app
+
+In Downloads, double-click the `.dmg` file. A window called **Cherry Keys for Mac** opens. **Drag the Cherry Keys for Mac app icon onto the Applications folder shortcut**, then wait for copying to finish. The app and folder may appear in a different order on your Mac. **Installation Guide.html** in the same window contains these illustrated instructions offline; open it before ejecting the DMG, or copy the HTML file to your Mac to keep it.
+
+If Finder asks whether to replace an existing copy, first check that the old app is quit and that you have followed any upgrade notes. Choose **Replace** when ready. If macOS asks you to authorize copying into Applications, use your Mac's administrator account or ask its administrator.
+
+![Installer window showing the app to drag onto Applications](docs/images/install/02-copy-app.png)
+
+#### 3. Eject the installer and open the installed app
+
+Close the installer window. In Finder's sidebar under **Locations**, click the eject symbol beside **Cherry Keys for Mac**. You can also select that mounted disk and press **Command-E**. The downloaded `.dmg` file may stay in Downloads; it is only the installer.
+
+Open **Finder → Applications**, then double-click **Cherry Keys for Mac**. Keep the app's name unchanged. **Always run the Applications copy**, rather than the copy inside the mounted DMG. If macOS asks whether you want to open an app downloaded from the internet, check its name and choose **Open** if you intend to run this build.
+
+![Finder Applications with Cherry Keys for Mac selected](docs/images/install/03-open-app.png)
+
+#### 4. If macOS blocks the first launch
+
+**Skip this step if the app opens.** This community preview is locally signed and has not been notarized by Apple, so another Mac may block it even if it opens on the developer's Mac.
+
+If the message says Apple cannot verify the developer or check the app for malicious software:
+
+1. Dismiss the message with **Done**, **OK** or **Cancel**; the wording varies.
+2. Open the **Apple menu → System Settings → Privacy & Security**.
+3. Scroll down to **Security**. Look for a message specifically naming **Cherry Keys for Mac** and an **Open Anyway** button. This appears only after a blocked opening attempt.
+4. If you obtained this app from the project and trust it, click **Open Anyway**. Follow the Mac's authentication prompt, then confirm **Open** if asked. This creates an exception for this app.
+
+Do not change **Allow applications from** or disable Gatekeeper, SIP, signature checks or privacy controls. If the message instead says the app **will damage your computer**, **contains malware** or **is damaged**, stop and check the download; this guide does not ask you to override those warnings. On a work or school Mac, an administrator may control these options. See [Apple's explanation of opening downloaded apps](https://support.apple.com/en-us/102445).
+
+The screenshot locates the Security section. This Mac has no pending blocked-app message, so **Open Anyway is not visible in this picture**.
+
+![Privacy and Security settings with the Security section outlined](docs/images/install/04-first-open.png)
+
+Continue with every setup step below. Opening the app does not grant its keyboard permissions automatically.
+
+### Finish setup (both options)
+
+#### 5. Locate the setup buttons in Cherry Keys
+
+On a new Mac, the app starts **Remapping paused**. An orange panel shows **Accessibility: this copy needs approval** and **Input Monitoring: approval needed**. The buttons on its right open the corresponding Mac settings. **Set up helper…** is in the left sidebar.
+
+Also look under **HARDWARE**. Your connected CHERRY keyboard should appear there. If it says **No CHERRY device detected**, check the cable/receiver or Bluetooth connection, then click **Refresh devices**.
+
+![First-run UI preview showing the permission buttons, helper button and hardware area](docs/images/install/05-first-run.png)
+
+#### 6. Allow Accessibility
+
+This lets Cherry Keys send the remapped keyboard input and modifier + mouse combinations you request.
+
+1. In Cherry Keys, click **Accessibility…**. If a macOS message offers **Open System Settings**, choose it.
+2. Find **Cherry Keys for Mac** in the list and turn **its switch ON**. On this Mac, ON is blue with the knob on the right.
+3. If asked, use **Touch ID** or enter your **Mac login/administrator password** to approve the change. This is a macOS prompt; there is no separate Cherry Keys password. On a managed Mac, ask its administrator if you cannot authorize it.
+
+To get there manually, open **System Settings → Privacy & Security → Accessibility**. On the Mac used for these screenshots, the same destination is labelled **Device Control and Data Access**. This is different from the top-level **Accessibility** page for display, hearing and motor settings. Using the app's **Accessibility…** button avoids that mix-up.
+
+**If Cherry Keys is missing from the list:** click **+** at the bottom, authenticate if asked, choose **Applications → Cherry Keys for Mac**, then click **Open**. Turn on the new entry. Select the installed app, rather than a helper executable or a copy in Downloads/the DMG. In the file chooser, **Command-Shift-G**, followed by `/Applications/Cherry Keys for Mac.app` and Return, can help locate it.
+
+![Accessibility destination with Cherry Keys enabled and the plus button marked](docs/images/install/06-accessibility.png)
+
+#### 7. Allow Input Monitoring as well
+
+This is a **second, separate permission** that lets Cherry Keys read the CHERRY keyboard. Turning on Accessibility alone is not enough.
+
+1. Return to Cherry Keys and click **Input Monitoring…**. If a macOS message offers **Open System Settings**, choose it.
+2. In **System Settings → Privacy & Security → Input Monitoring**, turn **Cherry Keys for Mac ON**.
+3. Authenticate with Touch ID or your Mac password if asked. If the app is missing, use **+ → Applications → Cherry Keys for Mac → Open**, then enable its switch, just as in step 6.
+4. If macOS offers **Quit & Reopen**, choose it. Otherwise, complete the restart in step 8 yourself.
+
+The app should be enabled in **both** permission lists. [Apple's Input Monitoring guide](https://support.apple.com/en-ie/guide/mac-help/mchl4cedafb6/mac) describes this separate permission.
+
+![Input Monitoring with Cherry Keys enabled and the plus button marked](docs/images/install/07-input-monitoring.png)
+
+#### 8. Quit fully and reopen
+
+Return to Cherry Keys. Choose **Cherry Keys for Mac → Quit Cherry Keys for Mac** from the menu bar at the top of the screen, or press **Command-Q** while its window is active. **The red close button only closes the window; it does not quit the app.**
+
+Then reopen **Finder → Applications → Cherry Keys for Mac**. If the permission panel remains visible, click **Recheck**. Once both permissions are recognized, the panel disappears. Remapping still starts paused; that is expected.
+
+![The Applications copy to reopen after fully quitting Cherry Keys](docs/images/install/08-reopen.png)
+
+#### 9. Set up and approve the helper
+
+The helper gives the app access to the supported CHERRY keyboard interfaces. It is separate from both permissions above.
+
+1. In Cherry Keys' left sidebar, click **Set up helper…**. If it says **Approve helper…**, click that instead. If you already see **Helper approved**, skip to step 10.
+2. Follow any macOS authentication prompt. If settings open, go to **System Settings → General → Login Items & Extensions**. Some macOS versions call the page **Login Items**.
+3. Under **Allow in the Background**, **App Background Activity** or **Background App Activity**, enable the entry for **Cherry Keys for Mac**. If an entry uses a developer/helper name, inspect its information/details to confirm it belongs to Cherry Keys; do not enable unrelated entries.
+4. Return to Cherry Keys and wait for **Helper approved** in the left sidebar. If needed, click **Refresh devices** to refresh the status. If approval is still pending, return to the background activity list and check its switch.
+
+![First-run UI preview of the Set up helper button](docs/images/install/09-helper-button.png)
+
+![General Login Items settings with the enabled Cherry Keys background item marked](docs/images/install/09-helper-approval.png)
+
+**Do not confuse background helper approval with Open at Login.** **Launch at login** in Cherry Keys is optional; it starts the app when you sign in. It does not replace helper approval or either keyboard permission. Helper setup is normally needed once, rather than every time you Pause or Enable. [Apple's Login Items guide](https://support.apple.com/en-hk/guide/mac-help/mtusr003/mac) explains the two lists.
+
+#### 10. Choose your layout, then enable remapping
+
+For a familiar Mac modifier layout, click **Swap Windows ↔ Alt** once. Physical Alt becomes Command, and the Windows key becomes Option. This creates or replaces the four modifier assignments for both sides of the keyboard. Skip the swap if you want to keep the existing layout. Use **Add assignment** if you want to customize another key; adding an assignment is optional.
+
+Click **Enable remapping** in the left sidebar. A new profile's assignment list may be empty; the screenshot below shows an existing profile as an example.
+
+![Cherry Keys with optional modifier swap, Enable remapping and Helper approved marked](docs/images/install/10-enable.png)
+
+#### 11. Confirm that setup is complete
+
+Check for all three signs:
+
+1. **Remapping on** appears in green in the left sidebar, and the button now says **Pause remapping**.
+2. **Helper approved** appears below it.
+3. The bottom status says **CHERRY capture active.**
+
+Open **TextEdit**, create a new document and type a short sentence with your CHERRY keyboard. Hold Shift to type a capital letter. Try any assignment you created. If you use TradingView and have the v0.4.6 fix, hold Shift and click the chart to check the ruler.
+
+![Working installation showing Remapping on, Helper approved and CHERRY capture active](docs/images/install/11-ready.png)
+
+You can now close the Cherry Keys window; it continues in the menu bar. Each fresh app launch starts paused, so choose **Enable remapping** after reopening it. After you have enabled it, temporary sleep/lock interruptions resume automatically. Enable **Launch at login** only if you want the app to open when you sign in.
+
+**Preset or Fn key?** On the KW X ULP with its Fn light off, choose **F12 — Mail (preset)** to change the Mail button, or **Fn + F12 — standard F12** for the other layer. Ctrl+Fn reverses which layer needs Fn. Browser Home and Calculator have named preset triggers too.
+
+#### If a step does not work
+
+| What you see | What to do |
+| --- | --- |
+| The app will not open | Follow step 4 for a developer/notarization block. Check the actual message before proceeding. |
+| Cherry Keys is missing from a permission list | Use that list's **+** button to add the installed Applications copy, then turn its switch on. |
+| Both switches are on, but the app still asks for approval | Quit and reopen, then click **Recheck**. An old build's entry may not approve the new copy. If needed, quit the app, remove only the stale Cherry Keys entry with **−**, add the current Applications copy with **+**, enable it and reopen. |
+| You cannot change a switch or approve the helper | Authenticate with a Mac administrator account, or ask the administrator of a managed Mac. |
+| Helper approval remains pending | Recheck **General → Login Items & Extensions → background activity**, then return to the app and click **Refresh devices**. Read any inline setup error. |
+| No CHERRY device appears | Check the selected keyboard connection, reconnect its receiver/cable or Bluetooth, then click **Refresh devices**. |
+| The app says it must run from Applications | Quit it, eject the DMG, then open the copy in **Finder → Applications**. |
+| Remapping is paused after reopening | Normal startup behavior: click **Enable remapping**. |
+| Keys or shortcuts behave strangely | Click **Pause remapping**. Check for another remapper controlling the CHERRY keyboard and review your assignments. |
+
+If you still need help, note your macOS version, app version, keyboard connection, the step where setup stopped and the exact on-screen error. Keep passwords, profile exports and private device details out of public reports.
 
 ### Option B: Build from source
 
@@ -87,34 +227,16 @@ The current DMG is a locally signed development build. A public Apple-notarized 
    ```
 
 6. When Finder opens, drag **Cherry Keys for Mac.app** into **Applications**. Keep its name unchanged, then open it from Applications.
-7. Continue with [Finish setup](#finish-setup-both-options) below. For tests and development tools, see [Build, test and distribute](#build-test-and-distribute).
+7. Continue at **step 5** in [Finish setup](#finish-setup-both-options) above; source builds need the same permissions and helper approval. For tests and development tools, see [Build, test and distribute](#build-test-and-distribute).
 
 The build can take a few minutes. If a command reports an error, stop there and include that error in a support request—do not run the commands with `sudo`. Before replacing an existing installation, quit it and follow the [upgrade instructions](docs/DEVELOPMENT.md#upgrades-and-removal).
-
-### Finish setup (both options)
-
-**1. Allow keyboard access.** In **System Settings → Privacy & Security**, enable **Cherry Keys for Mac** in both:
-
-- **Accessibility** — lets the app send your remapped keys.
-- **Input Monitoring** — lets it read the CHERRY keyboard.
-
-The app has buttons to open these settings. Quit and reopen it after enabling both permissions.
-
-**2. Approve the helper.** Click **Set up helper** in the app. If macOS requests approval, complete it in **System Settings → General → Login Items & Extensions**. The app should then show **Helper approved**.
-
-This is a one-time setup. You should not need an administrator password every time you pause or enable remapping.
-
-**3. Make it yours.** For a familiar Mac modifier layout, click **Swap Windows ↔ Alt**: physical Alt becomes Command, and the Windows key becomes Option. For another action, choose **Add assignment**, select a trigger (or use **Detect key**), choose an action, and save.
-
-**Preset or Fn key?** On the KW X ULP with its Fn light off, choose **F12 — Mail (preset)** to change the Mail button, or **Fn + F12 — standard F12** to assign the other layer. They are separate; Ctrl+Fn reverses which layer needs Fn. Browser Home and Calculator have named preset triggers too.
-
-**4. Enable remapping.** Click **Enable remapping**, then try your keys in TextEdit. Your selected profile follows the keyboard when you switch between its supported connection modes.
 
 ## Everyday use
 
 | What you want | What to do |
 | --- | --- |
 | Keep remapping in the background | Close the window with Command+W; the menu-bar icon stays active |
+| Use TradingView’s ruler | Hold Shift and click on the chart with remapping enabled; requires the v0.4.6 fix |
 | Change your assignments | Open Cherry Keys from its menu-bar icon |
 | Temporarily use the normal keyboard behavior | Choose **Pause remapping** |
 | Stop the app | Choose **Quit** |
@@ -138,7 +260,7 @@ Profiles can be exported and imported as JSON. They may contain private text or 
 | F3 Bluetooth 2 | Same, including capture after changing Bluetooth slots |
 | USB cable | Same, with immediate LED feedback |
 
-All four modes were rechecked on **v0.4.3 build 12** after helper hardening. Automatic recovery after sleep and lock was physically confirmed on **v0.4.4 build 13**. The latest preset/Fn separation and Calculator were physically confirmed on **v0.4.5 build 16 over F1**; the other three connections have automated coverage for this change but await that specific physical recheck. These results come from one keyboard on one Apple silicon Mac; they are not a guarantee for every model, layout or macOS version.
+All four modes were rechecked on **v0.4.3 build 12** after helper hardening. Automatic recovery after sleep and lock was physically confirmed on **v0.4.4 build 13**. The latest preset/Fn separation and Calculator were physically confirmed on **v0.4.5 build 16 over F1**; the other three connections have automated coverage for this change but await that specific physical recheck. The modifier + mouse fix was physically confirmed in TradingView on the **F1 receiver using local v0.4.5 build 17**, then prepared as **v0.4.6 build 18** with the same implementation. Its Bluetooth/wired operation, other modifier + mouse combinations and recovery under held modifiers still need physical checks. These results come from one keyboard on one Apple silicon Mac; they are not a guarantee for every model, layout or macOS version.
 
 Other CHERRY USB keyboards may work but are untested. Other CHERRY Bluetooth models need their device identities verified and added. Non-CHERRY keyboards stay on their normal macOS path; the connected Logitech receiver was verified as excluded by the device filter.
 
@@ -149,6 +271,8 @@ The sections below cover the implementation, extension points and validation for
 ## How it works
 
 The app takes exclusive control of supported CHERRY keyboard interfaces, routes their input through the selected profile, and sends replacement key events to macOS. Input retains its device identity before macOS merges keyboards, so other brands' keyboards are left alone.
+
+While remapping is active, a user-session event tap adds held CHERRY modifier outputs to mouse clicks, movement, drags and scrolling. Native mouse-event flags are preserved, so modifiers held on another keyboard continue to work. Pause, disconnect and recovery cleanup clear the CHERRY state; stopping remapping removes the event tap.
 
 The design separates three responsibilities:
 
@@ -186,7 +310,7 @@ To extend support, follow [adding hardware](docs/HARDWARE.md). Keep raw device d
 
 Supported actions include modifier remapping, shortcuts, Unicode text insertion, recorded keyboard macros, application/file/folder/website launch, media/volume/brightness controls, browser back/forward, default mail app launch, disable, screen lock and sleep. There are **18 Mac action presets**, including Spotlight, Emoji & Symbols, screenshots, window/tab controls, Find and Select All.
 
-**Swap Windows ↔ Alt** creates four editable assignments, covering both sides of the keyboard. It replaces existing assignments on those four modifier keys. Modifier mappings preserve held-key behavior. Ordinary assignments apply without Command/Control/Option/Shift held.
+**Swap Windows ↔ Alt** creates four editable assignments, covering both sides of the keyboard. It replaces existing assignments on those four modifier keys. Modifier mappings preserve held-key behavior for keyboard and mouse input. While a CHERRY modifier is held, mouse clicks, movement, drags and scrolling include its mapped output; native event flags from other keyboards are preserved. Ordinary assignments apply without Command/Control/Option/Shift held.
 
 Text, macro, launch and system actions run on trigger release. Keyboard shortcuts preserve down/up and repeat. Key labels follow physical US positions; the active layout and application shortcut settings affect interpretation. Hardware Fn may not generate an OS-visible event. Caps Lock and hardware Fn are not assignable triggers.
 
@@ -226,7 +350,7 @@ Macro recording is limited to keyboard input inside the editor. Remapping is rel
 
 This is a user-session app, not a login-screen or FileVault keyboard driver. It does not implement firmware updates, battery telemetry, programmable backlighting, mouse assignments or automatic per-device profile selection. Applications may reject synthesized input.
 
-Core transport behavior and sleep/lock recovery have physical acceptance, but complete media-key coverage, international layouts, adverse reconnects, crash handling, reboot and clean-machine setup need broader testing. Intel binaries compile; equivalent physical testing on Intel has not been established.
+TradingView Shift-click has physical acceptance on F1 for the mouse-modifier fix; other mouse combinations and transports still need physical validation. Core transport behavior and sleep/lock recovery have physical acceptance, but complete media-key coverage, international layouts, adverse reconnects, crash handling, reboot and clean-machine setup need broader testing. Intel binaries compile; equivalent physical testing on Intel has not been established.
 
 ## Build, test and distribute
 
@@ -251,7 +375,7 @@ xcrun swift-format lint --strict --recursive Sources Tests
 
 The build produces a universal arm64/x86_64 app in `.build/package.noindex/Cherry Keys for Mac.app`. Install at exactly `/Applications/Cherry Keys for Mac.app`; that path is part of helper authentication. Never run the GUI or test suite as root.
 
-Coverage includes model validation and private persistence, 93 key-routing checks, 78 transport-routing checks, 10 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
+Coverage includes model validation and private persistence, 105 key-routing checks (including 12 mouse-modifier regressions), 78 transport-routing checks, 10 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
 
 ### Signing and updates
 
@@ -268,7 +392,7 @@ python3 scripts/export-source.py
 python3 scripts/check-release.py --app ".build/package.noindex/Cherry Keys for Mac.app" --dist
 ```
 
-App packaging creates `dist/app/CherryKeysMac-<version>-macOS-universal.dmg`: a compressed, read-only image containing the signed app, an Applications shortcut, versioned setup instructions, changelog and the MIT license. `dist/app/SHA256SUMS` records its checksum. The package script rejects mismatched release docs/staged metadata and verifies the bundle signature and disk-image integrity; it does not notarize the app or grant permissions. Source export creates `dist/source/CherryKeysMac-source.zip` with its own `dist/source/SHA256SUMS`, from an explicit allowlist excluding settings, signing material, build outputs, investigation artifacts and Git history. Run a credential scanner on the actual exported/staged files and any history you intend to publish. Do not upload a parent workspace or private troubleshooting archives.
+App packaging creates `dist/app/CherryKeysMac-<version>-macOS-universal.dmg`: a compressed, read-only image containing the signed app, an Applications shortcut, versioned quick-start instructions, an illustrated offline `Installation Guide.html` with screenshots, changelog and the MIT license. `dist/app/SHA256SUMS` records its checksum. The package script rejects mismatched release docs/staged metadata and verifies the bundle signature and disk-image integrity; it does not notarize the app or grant permissions. Source export creates `dist/source/CherryKeysMac-source.zip` with its own `dist/source/SHA256SUMS`, from an explicit allowlist excluding settings, signing material, build outputs, investigation artifacts and Git history. Run a credential scanner on the actual exported/staged files and any history you intend to publish. Do not upload a parent workspace or private troubleshooting archives.
 
 ## Security
 

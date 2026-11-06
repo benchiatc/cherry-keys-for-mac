@@ -20,7 +20,10 @@ Do not treat a model ID, firmware revision, USB port, registry ID or driver-exte
 ## Manual acceptance checklist
 
 - Ordinary typing, held keys, repeat, modifiers and existing assignments.
-- A second, non-CHERRY keyboard remains unaffected while both are connected.
+- Shift-click in TradingView activates the ruler with remapping enabled; compare with Pause.
+- Command/Option/Control-click, modified drags and modified scrolling use the mapped modifier. Check both sides and multiple held modifiers.
+- Release, Pause, disconnect and transport switching clear pointer modifiers; a modifier held on another captured device remains active until released.
+- A second, non-CHERRY keyboard remains unaffected while both are connected, including its live modifiers combined with CHERRY modifiers on mouse events.
 - Caps input state and physical LED; Num numeric/navigation state and LED.
 - Media keys, hardware Fn behavior, international/layout-specific keys.
 - Pause/Enable, Quit, disconnect/reconnect and transport switching with held keys.
@@ -28,6 +31,12 @@ Do not treat a model ID, firmware revision, USB port, registry ID or driver-exte
 - Approval/setup, helper removal and reboot behavior on a clean macOS user account.
 
 KW X ULP acceptance covered typing, modifier remapping, Caps/Num behavior/LEDs in all four modes and recapture across Bluetooth/wired changes. It did not exhaust the full checklist. Physical feedback cannot be inferred from unit tests or successful HID writes alone.
+
+## Mouse modifier acceptance
+
+On 2026-11-05 the user reproduced TradingView's ruler failing with remapping enabled and working when paused. After installing the mouse modifier fix in local v0.4.5 build 17, the user confirmed Shift-click works with remapping enabled. The app reported the F1 USB receiver connection during this test. v0.4.6 build 18 carries the same implementation with release metadata updated.
+
+The 12 automated regressions cover held Shift, multiple devices, mapped and disabled modifiers, native flag preservation and release/disconnect/Pause cleanup. They use injected event sinks and do not prove real mouse-event timing. Physical acceptance remains outstanding for Bluetooth F2/F3, wired USB, other applications, Command/Option/Control combinations, dragging/scrolling and interruption scenarios with a held modifier. Earlier four-mode typing and LED results do not establish these newer mouse behaviors.
 
 ## Consumer launch controls
 

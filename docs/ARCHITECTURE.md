@@ -4,7 +4,7 @@
 
 | Component | Privilege | Responsibility |
 | --- | --- | --- |
-| `CherryKeysMac` | Logged-in user, Accessibility/Input Monitoring | SwiftUI, private profiles, HID routing and synthesized actions |
+| `CherryKeysMac` | Logged-in user, Accessibility/Input Monitoring | SwiftUI, private profiles, HID routing, synthesized actions and mouse modifier event tap |
 | `CherryKeysCaptureService` | Root, approved SMAppService | Authenticates XPC clients and launches only the capture child |
 | `CherryKeysHIDCapture` | Root, bounded session | Exclusive access to verified CHERRY interfaces, source-tagged input, standard Caps/Num LED output |
 
@@ -21,6 +21,16 @@ Only CHERRY keyboard and associated consumer-control interfaces are seized. Unsu
 `HIDRouter` indexes held keys/modifiers by device registry identity and HID usage. Disconnect releases that device's synthesized state. Pause/Quit release all state and stop capture. `CaptureRecovery` retains enabled intent across temporary sleep/session/secure-input interruptions, with workspace observers that remain registered while capture is stopped and a 500ms recovery timer. Resume requires no active secure input and an active console session. Explicit Stop and permanent errors cancel pending recovery; macros are cancelled rather than replayed. Action execution occurs in the GUI, with cancellation for macros. A socket read source delivers lock changes immediately; timers maintain liveness and synchronize external lock changes. Missed heartbeats expire after two seconds; capture has a four-hour ceiling.
 
 `ConfigurationStore` validates bounded JSON, saves atomically, restricts settings-directory permissions and retains one private backup. Profiles are user-owned settings, never inputs to the root broker. The active profile applies to all captured devices; there is no physical-unit profile enrollment.
+
+## Mouse modifier propagation
+
+Seizing the CHERRY keyboard prevents its physical modifier state from reaching native mouse events. Synthesizing a Shift keyboard event alone does not ensure that a later native click carries Shift. `HIDRouter.pointerFlags` unions each currently held CHERRY modifier output into the incoming mouse event flags. It uses mapped outputs, excludes disabled modifiers and preserves the live native flags, including modifiers from other keyboards. It does not reuse `baseFlags`, which is a keyboard-time snapshot that could retain an externally released modifier.
+
+`InputEngine` installs an active `cgSessionEventTap` at the head of the session event stream before starting capture. It covers left/right/other button down/up, movement, dragging and wheel scrolling. Events pass through with their flags updated in place; mouse buttons, coordinates and scrolling are not remapped or suppressed. The callback and HID routing run on the main run loop. macOS timeout/user-input tap disable notifications re-enable the tap while the engine is running. Failure to create the tap aborts startup and restores native input.
+
+Held modifier state follows the existing per-device release rules. Disconnect clears only the removed device; overlapping modifiers from another captured device remain held. Pause, Quit and temporary suspension remove the tap and release all state; automatic recovery creates a fresh tap. The GUI uses its existing Accessibility approval, and no mouse processing is added to the root broker or capture child.
+
+Twelve injected-event regressions cover Shift, overlapping devices, mapped/disabled modifiers, native flag preservation, stale keyboard snapshots and cleanup. They do not install a real event tap or exercise native pointer delivery. TradingView Shift-click was physically confirmed on F1 in local v0.4.5 build 17; v0.4.6 build 18 retains the same implementation.
 
 ## Trigger resolution and transport consistency
 

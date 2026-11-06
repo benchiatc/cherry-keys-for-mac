@@ -7,7 +7,67 @@ struct InputEngineTests {
         guard condition() else { fatalError(message) }
         checks += 1
     }
+    static func testPointerModifiers() {
+        let router = HIDRouter()
+        router.emit = { _ in }
+        func key(
+            _ device: UInt64, _ usage: UInt32, _ down: Bool,
+            _ physicalFlags: CGEventFlags = []
+        ) {
+            router.receive(
+                vendor: 0x046a, device: device, page: 7, usage: usage,
+                down: down, physicalFlags: physicalFlags)
+        }
+        let native: CGEventFlags = [.maskAlternate, .maskAlphaShift, .maskSecondaryFn]
+        check(router.pointerFlags(native) == native, "Idle pointer flags are unchanged")
+        key(1, 0xe1, true)
+        check(
+            router.pointerFlags([]) == .maskShift,
+            "Held left Shift reaches the ruler's mouse click")
+        check(
+            router.pointerFlags(native) == native.union(.maskShift),
+            "Native modifiers and unrelated mouse flags survive the merge")
+        key(2, 0xe5, true)
+        key(1, 0xe1, false)
+        check(
+            router.pointerFlags([]) == .maskShift,
+            "Right Shift on another device survives left Shift release")
+        router.releaseDevice(2)
+        check(router.pointerFlags([]).isEmpty, "Disconnect clears pointer modifier state")
+
+        var swap = Assignment()
+        swap.trigger = Trigger(kind: .key, code: 58)  // physical left Option
+        swap.action = .modifier
+        swap.outputKey = 55  // Command
+        router.assignments = [swap]
+        key(1, 0xe2, true)
+        check(
+            router.pointerFlags([]) == .maskCommand,
+            "Mouse receives remapped Command rather than physical Option")
+        key(1, 0xe2, false)
+        check(router.pointerFlags([]).isEmpty, "Mapped modifier release clears mouse flags")
+        swap.action = .disable
+        router.assignments = [swap]
+        key(1, 0xe2, true)
+        check(router.pointerFlags([]).isEmpty, "Disabled modifier does not reach mouse input")
+        key(1, 0xe2, false)
+        router.assignments = []
+
+        key(1, 0xe0, true, .maskAlternate)
+        check(
+            router.pointerFlags([]) == .maskControl,
+            "Mouse merge excludes stale native keyboard-time flags")
+        check(
+            router.pointerFlags(.maskCommand) == [.maskCommand, .maskControl],
+            "Other keyboard's live modifier combines with held CHERRY Control")
+        router.releaseAll()
+        check(router.pointerFlags([]).isEmpty, "Pause clears all held pointer modifiers")
+        check(
+            router.pointerFlags(native) == native,
+            "Pause preserves native pointer modifiers from other keyboards")
+    }
     static func main() {
+        testPointerModifiers()
         let router = HIDRouter()
         var events: [CGEvent] = []
         var actions: [Assignment] = []

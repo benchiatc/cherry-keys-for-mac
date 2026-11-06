@@ -70,6 +70,15 @@ final class HIDRouter {
     private var baseFlags: CGEventFlags = []
     private let eventSource = CGEventSource(stateID: .privateState)
 
+    /// Native mouse events cannot see modifiers from the seized keyboard.
+    /// Merge only currently held outputs; baseFlags is a keyboard-time snapshot
+    /// and could retain a modifier since released on another keyboard.
+    func pointerFlags(_ nativeFlags: CGEventFlags) -> CGEventFlags {
+        var result = nativeFlags
+        for modifier in modifiers.values { result.formUnion(modifier.bit) }
+        return result
+    }
+
     private var flags: CGEventFlags {
         var f = baseFlags
         for m in modifiers.values { f.formUnion(m.bit) }

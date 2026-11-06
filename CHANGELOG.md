@@ -1,6 +1,27 @@
 # Changelog
 
-Released previews are listed below. Version and build metadata come from `Resources/Info.plist`.
+Release candidates, local fixes and released previews are listed below. Version and build metadata come from `Resources/Info.plist`.
+
+## 0.4.6 (build 18) — 2026-11-06
+
+- Restore modifier + mouse shortcuts while remapping is active, including TradingView's Shift-click ruler. Merge held CHERRY modifier outputs into native clicks, movement, drags and scrolling, preserving native flags from other keyboards.
+- Support mapped modifier outputs and disabled modifiers; clear held state on release, disconnect and Pause, and remove the event tap on stop. All mouse handling stays in the unprivileged GUI.
+- Physically confirm the TradingView ruler on the F1 receiver in local v0.4.5 build 17. Build 18 retains that implementation with updated release metadata. Other transports and mouse combinations still need physical acceptance.
+- Pass 105 key-routing checks (including 12 mouse-modifier regressions), 78 transport-routing checks and 10 recovery checks, plus model, decoder, identity, helper and IPC/snapshot suites.
+- Retain the installed privileged broker and capture helper byte-for-byte. Existing profiles remain compatible. Release this fix separately as v0.4.6; v0.4.5 downloads remain build 16.
+
+### Installation guide refresh — 2026-11-06
+
+- Expand the README into an illustrated 11-step DMG setup guide, including first-open security prompts, both separate permissions, missing-entry addition, full quit/reopen, background helper approval and final working-state checks.
+- Add annotated screenshots with private/unrelated content excluded and clearly identify first-run UI previews and macOS naming differences.
+- Bundle the same guide as offline HTML with its screenshots, generated from the README, and expand the installer quick-start checklist. This documentation/packaging update keeps v0.4.6 build 18 and app behavior unchanged.
+
+## 0.4.5 (build 17) — 2026-11-05 (local, unpublished)
+
+- Carry held CHERRY modifier outputs into native mouse events, restoring shortcuts such as TradingView's Shift-click ruler while remapping is enabled. Support clicks, movement, drags and scrolling, including remapped Command/Option/Control.
+- Preserve native event flags from other keyboards without reusing stale keyboard-time snapshots. Clear held state on release, disconnect and Pause; remove the mouse event tap when capture stops.
+- Add 12 regression checks covering Shift, overlapping devices, remapped and disabled modifiers, native flags and cleanup. Physically confirmed by the user in TradingView on the F1 receiver on 2026-11-05 after installation; the ruler works with remapping enabled.
+- Retain the installed privileged broker and capture helper. Published v0.4.5 downloads remain build 16.
 
 ## 0.4.5 (build 16) — 2026-10-24
 

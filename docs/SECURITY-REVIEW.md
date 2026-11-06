@@ -1,6 +1,6 @@
-# Security review — 2026-10-24
+# Security review — updated 2026-11-06
 
-This is a source-focused engineering review, not an independent penetration test or proof of zero vulnerabilities. The current preview is **v0.4.5 build 16**. It retains the v0.4.5 routing behavior and the privileged broker/capture executables previously validated after the v0.4.3 hardening. Current release status and changes are recorded in the [changelog](../CHANGELOG.md).
+This is a source-focused engineering review, not an independent penetration test or proof of zero vulnerabilities. The current preview is **v0.4.6 build 18**. It adds mouse modifier propagation in the unprivileged GUI and retains the installed privileged broker/capture executables byte-for-byte. The earlier helper hardening and its validation remain as recorded below. Current release status and changes are recorded in the [changelog](../CHANGELOG.md).
 
 ## Findings and mitigations
 
@@ -10,7 +10,8 @@ This is a source-focused engineering review, not an independent penetration test
 | Profile imports read unbounded JSON; payload limits were incomplete | Bound JSON to 4 MiB, text to 64 KiB, profile names to 256 UTF-8 bytes and assignments to 1,000/profile; retain profile/macro limits | Oversized inputs rejected, original files preserved, validation/private-persistence tests pass |
 | Investigation artifacts contained private host/device metadata and unrelated/vendor files | Keep them outside the public source tree; export an explicit allowlist without Git history, profiles, keys or device captures | Privacy check, extracted-archive inventory review and Gitleaks scans |
 | Icon assets carried ancillary metadata | Strip PNG text/EXIF chunks, including embedded ICNS PNGs | Eight chunks removed without changing pixel data |
-| Unsupported Consumer-page launch keys paused capture; temporary fallback merged the Fn layers | Recognize three allowlisted Consumer controls and keep their trigger namespace independent of standard F-keys | 93 key-routing and 78 transport-routing checks; independent preset/Fn behavior physically confirmed over F1 |
+| Unsupported Consumer-page launch keys paused capture; temporary fallback merged the Fn layers | Recognize three allowlisted Consumer controls and keep their trigger namespace independent of standard F-keys | 105 key-routing and 78 transport-routing checks; independent preset/Fn behavior physically confirmed over F1 |
+| Seized-keyboard modifiers were absent from native mouse events | Merge only currently held mapped modifier outputs into native pointer flags in a user-session event tap; preserve live native flags, remove tap on stop and clear device-held state | 12 routing regressions; TradingView Shift-click physically confirmed over F1 in local build 17 |
 | Documentation, staged app and distribution could drift apart | Check source version/build, README links, changelog, staged metadata, source ZIP inventory/content and checksums; packaging rejects stale staged metadata | Release checks run locally and in CI; negative mismatch checks are part of release-tool validation |
 
 ## Trust boundaries reviewed
@@ -21,6 +22,7 @@ This is a source-focused engineering review, not an independent penetration test
 - Bounded IPC buffers and profile data; watchdogs, stop handling, disconnect cleanup and suspended-input recovery.
 - Device identity and collection allowlists; Caps/Num writes restricted to standard LED elements. No firmware/vendor-lighting writes.
 - No app HTTP client/server, TCP listener, telemetry or automatic updater. IPC is local. Explicit file/application/website actions may invoke other apps; the unprivileged sleep action uses fixed `/usr/bin/pmset sleepnow` arguments.
+- The mouse event tap runs in the unprivileged GUI using existing Accessibility access. Its event mask covers pointer input only, updates modifier flags in place and does not log pointer coordinates or add privileged IPC operations. Startup fails back to native input if tap creation fails; stop removes the tap.
 - Default Mail resolves the local handler and opens the application without sending/composing a message. Consumer launch actions remain in the unprivileged GUI.
 
 No third-party runtime libraries are bundled. macOS, the Swift runtime, build tools and user-launched applications remain external dependencies.
@@ -31,7 +33,7 @@ No third-party runtime libraries are bundled. macOS, the Swift runtime, build to
 - The public-source audit checks allowlisted text for local account names, absolute user-home paths, device addresses and private-key material. Binary assets require separate review. No vendor installer, profile, raw device dump or signing material is exported.
 - Universal GUI/broker/capture builds and model, router, transport, recovery, HID decoder, identity, argument/nonroot, helper setup, authenticated XPC and executable-snapshot tests pass. Tests do not register a service, seize hardware or post real input.
 - CI uses an ephemeral signing identity. The signing wrapper temporarily includes its isolated keychain in the user search list and restores the original list; it does not change certificate trust or the default keychain. Password arguments/output are not logged by the wrapper.
-- DMGs are mounted read-only for version/build, signature, payload and checksum verification. They contain the app, Applications shortcut, versioned setup guide, changelog and MIT license. Release checksums contain basenames, not build-machine paths.
+- DMGs are mounted read-only for version/build, signature, payload and checksum verification. They contain the app, Applications shortcut, versioned quick-start checklist, illustrated offline HTML guide and screenshots, changelog and MIT license. Installation images are cropped/redacted and re-encoded without source metadata; first-run UI previews are labelled, and actual permission switches were not reset for capture. Release checksums contain basenames, not build-machine paths.
 
 ## Physical acceptance and limits
 
@@ -42,6 +44,7 @@ No third-party runtime libraries are bundled. macOS, the Swift runtime, build to
 | v0.4.4 build 13 | Automatic recovery after sleep/wake and lock/unlock | Full adverse interruption matrix; protected password entry remains native |
 | v0.4.5 build 16 | F1 preset F12 mapping and independent Fn + F12; Calculator | Latest layer checks physically repeated on F2/F3/wired USB; Browser Home visible behavior in specific browsers |
 | v0.4.5 documentation/packaging refresh | Routing code, version/build and privileged executables retained | No additional hardware acceptance claimed |
+| Local v0.4.5 build 17 mouse fix, carried into v0.4.6 build 18 | TradingView Shift-click ruler works with remapping enabled on F1; approved helper and saved profile retained after GUI update | F2/F3/wired mouse behavior, other applications/modifier combinations, drags/scrolls and adverse interruption checks; build 18 differs in release metadata |
 
 The earlier “all transports predate hardening” limitation is resolved by the v0.4.3 checks above. Automated transport fixtures exercise normalized events and synthetic IDs; they do not prove radio timing or hardware report generation. Browser Home emits Command–Shift–H to the foreground app and may have no visible effect there.
 
@@ -51,7 +54,7 @@ The earlier “all transports predate hardening” limitation is resolved by the
 - A source builder's local signing identity is accessible to that developer account. A process with access to that account/keychain may sign replacement code accepted by its local helper. This is not equivalent to a protected central production signing key.
 - An already compromised administrator/root account or stolen signing key is outside the protection offered by certificate pinning and hardened runtime. Some macOS signing commands require a secret as a process argument; the scripts avoid logging those arguments.
 - Self-reported device IDs can be spoofed. No firmware authentication or reliable cross-transport physical-unit serial identity has been established.
-- Accessibility permits synthesized input. Unreviewed profiles can launch files/apps/URLs with user permissions; do not store secrets in macros.
+- Accessibility permits synthesized input and modification of mouse-event flags. The mouse event tap is session-wide so a held captured CHERRY modifier can combine with any connected pointing device; other keyboards’ live flags are preserved. Unreviewed profiles can launch files/apps/URLs with user permissions; do not store secrets in macros.
 - A broker crash may leave a root-only temporary executable snapshot containing signed program bytes. It contains no captured input or profiles; no broad background cleanup service is installed.
 - Reboot, crash, repeated adverse reconnects, helper upgrade/removal and equivalent Intel hardware behavior need broader physical testing. Other CHERRY models remain unverified.
 

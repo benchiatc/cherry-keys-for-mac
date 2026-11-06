@@ -20,18 +20,33 @@ codesign --verify --deep --strict "$PAYLOAD/Cherry Keys for Mac.app"
 ln -s /Applications "$PAYLOAD/Applications"
 cp LICENSE "$PAYLOAD/LICENSE.txt"
 cp CHANGELOG.md "$PAYLOAD/Changelog.md"
+mkdir -p "$PAYLOAD/docs/images"
+ditto --norsrc --noextattr docs/images/install "$PAYLOAD/docs/images/install"
+python3 scripts/render-install-guide.py "$PAYLOAD/Installation Guide.html"
 {
 print -r -- "Cherry Keys for Mac $VERSION (build $BUILD)"
 cat <<'TEXT'
 
+Open "Installation Guide.html" in this window for the full illustrated guide.
+It works offline and includes every keyboard permission and helper approval step.
+
+Quick checklist:
 1. Quit any existing Cherry Keys for Mac installation before replacing it.
    If upgrading the privileged broker, remove the helper in the old app first.
 2. Drag Cherry Keys for Mac.app onto the Applications shortcut.
 3. Eject this disk image. Open the app from Applications, not from this image.
-4. Allow the installed app in System Settings > Privacy & Security >
-   Accessibility AND Input Monitoring. Quit and reopen it afterward.
-5. Choose Set up helper and complete any macOS Login Items & Extensions
-   approval. Then select your profile and choose Enable remapping.
+4. If macOS blocks opening this locally signed preview, read the guide
+   for the app-specific Open Anyway flow; do not change global security settings.
+5. In the app, use Accessibility... and Input Monitoring... to open both
+   permission lists. Turn Cherry Keys ON in BOTH. If it is missing, click +
+   and add the Applications copy. Authenticate with your Mac password or Touch ID
+   if asked. The Accessibility destination may be labelled Device Control and
+   Data Access on newer macOS. Quit fully with Command-Q, then reopen the app.
+6. Choose Set up helper in the app. In General > Login Items & Extensions
+   (or Login Items), turn Cherry Keys ON under background activity. Return to
+   the app and check for Helper approved. Open at Login is a separate option.
+7. Select your profile, optionally swap Windows/Alt, and choose Enable remapping.
+   Look for Remapping on and CHERRY capture active. Try typing in TextEdit.
 
 Pause and Enable do not normally require another administrator password.
 Existing profiles are preserved. Each app launch starts paused.
@@ -41,6 +56,11 @@ Calculator and Mail. Hold Fn for the independent standard F-key layer.
 Ctrl+Fn reverses these layers. Choose the named preset trigger to replace
 its command; choose Fn + F12 (standard F12) to map the other layer.
 Browser Home sends Command-Shift-H to the foreground app; behavior varies.
+
+Held CHERRY modifiers also apply to mouse clicks, movement, drags and scrolling.
+For TradingView's ruler, hold Shift and click on the chart with remapping on.
+This fix was physically confirmed on F1 in local build 17; v0.4.6 carries
+that implementation. Other mouse combinations and transports need further checks.
 
 This is a locally signed development build, not an Apple Developer ID
 notarized release. A DMG is packaging, not a change in trust or permissions.

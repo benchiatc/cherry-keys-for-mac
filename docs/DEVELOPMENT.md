@@ -6,7 +6,7 @@ Install Apple's Command Line Tools, then use the commands in the README. There i
 
 `build.sh` stages a universal bundle without installing it or registering services. `test-service.sh` requires the signing identity and a prior build. Tests run as a normal user and never seize devices, register a service or install software. The CI workflow creates an ephemeral local signing identity on its macOS runner; no signing secrets are uploaded.
 
-`test-input.sh` runs key-routing, transport-routing and recovery checks. Keep the transport matrix intact when adding hardware or changing trigger lookup: the same profile must apply across connections, preset/Fn layers must stay separate, and disconnect cleanup must not invoke a pending action or release another connection's key. The transport fixtures contain only generic model metadata and synthetic registry IDs.
+`test-input.sh` runs 105 key-routing checks (including 12 mouse-modifier regressions), 78 transport-routing checks and 10 recovery checks. Mouse regressions use injected sinks: they do not create an OS event tap or generate real pointer input. Follow the [mouse acceptance checklist](HARDWARE.md#mouse-modifier-acceptance) for hardware validation. Keep the transport matrix intact when adding hardware or changing trigger lookup: the same profile must apply across connections, preset/Fn layers must stay separate, and disconnect cleanup must not invoke a pending action or release another connection's key. The transport fixtures contain only generic model metadata and synthetic registry IDs.
 
 Format Swift with `xcrun swift-format format --in-place --recursive Sources Tests`. Review changes semantically; formatting is not a security check.
 
@@ -26,6 +26,12 @@ For an upgrade that changes the broker, use **Remove helper** in the installed o
 
 To uninstall: Pause, choose **Remove helper**, disable Launch at login, quit, and move the app to Trash. Optionally remove its Accessibility/Input Monitoring entries in System Settings and its settings directory in Application Support. Keep backups if profiles are needed. Delete the isolated Signing directory only if you no longer need that local signing identity. No global uninstall script or unrelated remapper cleanup is shipped.
 
+### v0.4.6 upgrade
+
+The mouse modifier fix changes the GUI only. The local v0.4.5 build 17 installation retained the existing privileged broker and capture helper byte-for-byte, preserved profiles and existing approvals, and successfully resumed capture. TradingView Shift-click was then physically confirmed on F1. The v0.4.6 build 18 preview retains that implementation with new release metadata. Compare helper bytes/signers before applying the GUI-only upgrade path; a separately rebuilt or differently signed helper may require the full helper upgrade procedure above.
+
+Building and packaging do not install or update the running app. Install v0.4.6 from its own release assets; existing v0.4.5 assets must not be replaced with the changed app.
+
 ## Source publication
 
 Run `python3 scripts/check-public-source.py` and `python3 scripts/export-source.py`. The ZIP uses a strict allowlist of source, tests, build scripts, documentation and assets. It does not include Git history, local settings, signing material, binaries or reverse-engineering artifacts. Use a standalone checkout for publication, and review the extracted archive separately. Check the exact staged files with a secret scanner before pushing.
@@ -34,7 +40,7 @@ Run Gitleaks separately against the exported directory and, once a standalone re
 
 ## DMG packaging
 
-Run `./scripts/package.sh` after building. The output is a compressed read-only DMG in `dist/app/`, with an Applications shortcut, a versioned installation guide, changelog and the MIT license. Existing user settings and local signing keys are never packaged. Temporary payload copies stay under `.build/dmg.noindex` and are removed after packaging. The script first checks release metadata against the README/changelog and staged app, then verifies the copied app signature and image integrity before replacing the distribution artifact, and writes a basename-only SHA-256 manifest. The source ZIP remains a separate contributor download in `dist/source/`. Each folder has its own `SHA256SUMS` manifest.
+Run `./scripts/package.sh` after building. The output is a compressed read-only DMG in `dist/app/`, with an Applications shortcut, a versioned quick-start checklist, an illustrated offline `Installation Guide.html`, its screenshot files, changelog and the MIT license. `scripts/render-install-guide.py` generates the HTML from the README installation section using only the Python standard library; update the README and recapture affected screenshots when setup changes. Existing user settings and local signing keys are never packaged. Temporary payload copies stay under `.build/dmg.noindex` and are removed after packaging. The script first checks release metadata against the README/changelog and staged app, then verifies the copied app signature and image integrity before replacing the distribution artifact, and writes a basename-only SHA-256 manifest. The source ZIP remains a separate contributor download in `dist/source/`. Each folder has its own `SHA256SUMS` manifest.
 
 Test each image by mounting it read-only without opening Finder, verifying the mounted app's signature and version, checking the Applications shortcut and bundled files, and ejecting it. Never launch/register the app from the mounted image: install it at the canonical Applications path. DMG packaging does not provide Developer ID signing or notarization; apply the release signing/notarization requirements above before production distribution.
 
@@ -48,5 +54,11 @@ Test each image by mounting it read-only without opening Finder, verifying the m
 4. Mount the DMG read-only without launching the app. Check version/build/minimum macOS, universal architectures, bundle signature, versioned setup guide, changelog, license and Applications shortcut; eject afterward. Compare helper bytes against the prior release when claiming no privileged changes. Review/scanner-check the exact exported source, assets and release notes for private information.
 5. Commit and push the release source; wait for CI. Create a draft GitHub prerelease targeting that full commit SHA. Attach the DMG, source ZIP and a combined basename-only `SHA256SUMS`; check uploaded sizes/digests before publication. Include the version/build, toolchain, validation scope, upgrade impact and signing/notarization status in its notes.
 6. Publish the preview and verify the public download links. Do not move published version tags. Disclose any preview documentation/packaging refresh and its source revision in release notes; never silently replace artifacts. Later documentation may advance on `main`. This project has no automatic updater.
+
+### Prepare without pushing
+
+Use an isolated repository checkout, rather than a parent workspace containing unrelated projects. Fetch the intended remote, record the base commit and copy only the public-source allowlist into the release branch. Review the diff and stage the intended source/docs changes. Keep local settings, signing keys, traces, build products and distribution binaries outside Git. Preparing a branch or artifacts does not authorize a push, tag, release creation, upload or publication.
+
+Prepare release notes and the versioned DMG/source ZIP/checksums locally. Confirm source-export content matches the final staged source, scan that exact export, and mount the DMG read-only to inspect its payload and signature without launching/registering it. Record automated results and physical acceptance separately, including the connection used and remaining gaps. Push and publication remain separate explicit steps in the workflow above.
 
 The local layout is `dist/app/<versioned DMG>` and `dist/app/SHA256SUMS`, plus `dist/source/CherryKeysMac-source.zip` and `dist/source/SHA256SUMS`. Git ignores generated distribution files; GitHub release assets provide binary downloads. Keep old local artifacts in private development storage or a separate versioned archive, not mixed into the current checksum manifest.
