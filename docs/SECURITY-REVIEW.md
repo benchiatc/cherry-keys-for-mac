@@ -1,6 +1,6 @@
-# Security review — updated 2026-11-06
+# Security review — updated 2026-11-11
 
-This is a source-focused engineering review, not an independent penetration test or proof of zero vulnerabilities. The current preview is **v0.4.6 build 18**. It adds mouse modifier propagation in the unprivileged GUI and retains the installed privileged broker/capture executables byte-for-byte. The earlier helper hardening and its validation remain as recorded below. Current release status and changes are recorded in the [changelog](../CHANGELOG.md).
+This is a source-focused engineering review, not an independent penetration test or proof of zero vulnerabilities. The current preview is **v0.4.7 build 20**. It adds mouse modifier propagation in the unprivileged GUI and retains the installed privileged broker/capture executables byte-for-byte. The earlier helper hardening and its validation remain as recorded below. Current release status and changes are recorded in the [changelog](../CHANGELOG.md).
 
 ## Findings and mitigations
 

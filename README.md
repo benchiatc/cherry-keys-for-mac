@@ -32,6 +32,7 @@ Current preview: **v0.4.7 (build 20)** · [Changelog](CHANGELOG.md) · [GitHub r
 - [Changelog](CHANGELOG.md)
 - [Install and get started](#install-and-get-started)
 - [Everyday use](#everyday-use)
+- [Sleep and lock recovery](#sleep-and-lock-recovery)
 - [Compatibility](#compatibility)
 - [How it works](#how-it-works)
 - [Hardware specifications](#hardware-specifications)
@@ -432,6 +433,6 @@ Describe the user-visible problem, the implementation decision, the evidence and
 
 The implementation was informed by analysis of CHERRY KEYS 1.0.7 behavior. No vendor binaries, extracted resources, Windows installer or local device traces are included. The app icon is AI-generated artwork. This is an independent native implementation, not an official CHERRY release or a port of proprietary source code.
 
-## Sleep/lock recovery — v0.4.7 build 20
+## Sleep and lock recovery
 
 Capture EOF, heartbeat interruption, XPC interruption and known helper lifecycle stops preserve enabled intent and reconnect automatically, even before workspace notifications arrive. Manual Pause and permanent validation/protocol errors remain stopped. Secure input stays native. The user reports F1 recovery working in the tested build 19 candidate; separate sleep/lock/manual-Pause checks and other transports remain unconfirmed. Build 20 retains the same fix with release version metadata updated. Automated recovery checks increase from 10 to 23; root helper binaries are unchanged.
