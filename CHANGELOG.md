@@ -2,6 +2,14 @@
 
 Release candidates, local fixes and released previews are listed below. Version and build metadata come from `Resources/Info.plist`.
 
+## 0.4.7 (build 20) — 2026-11-11
+
+- Recover from capture connection loss, interrupted XPC and known helper lifecycle stops even when they arrive before sleep/lock notifications.
+- Preserve manual Pause and permanent validation/protocol failure behavior; handle secure input becoming active during resume.
+- Retain modifier + mouse support from the installed local build. Add recovery regressions; 23 recovery checks pass. The user reports F1 recovery working after installation; individual sleep/lock cycles and manual-Pause behavior were not separately confirmed.
+- Privileged capture and broker executables remain unchanged.
+
+
 ## 0.4.6 (build 18) — 2026-11-06
 
 - Restore modifier + mouse shortcuts while remapping is active, including TradingView's Shift-click ruler. Merge held CHERRY modifier outputs into native clicks, movement, drags and scrolling, preserving native flags from other keyboards.

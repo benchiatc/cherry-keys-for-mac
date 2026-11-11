@@ -315,7 +315,13 @@ final class InputEngine {
                     )
                 }
             }
-            service.interruptionHandler = service.invalidationHandler
+            service.interruptionHandler = { [weak self] in
+                DispatchQueue.main.async {
+                    guard let self, self.running, self.session == id else { return }
+                    self.suspend(
+                        "Capture service interrupted; remapping will reconnect automatically.")
+                }
+            }
             serviceConnection = service
             service.resume()
             let proxy =
@@ -423,12 +429,13 @@ final class InputEngine {
         while true {
             let count = Darwin.read(fd, &bytes, bytes.count)
             if count == 0 {
-                pause("CHERRY capture ended. Native input restored.")
+                suspend("Capture connection ended; remapping will reconnect automatically.")
                 return
             }
             if count < 0 {
                 if errno != EAGAIN && errno != EWOULDBLOCK {
-                    pause("Local capture connection failed. Native input restored.")
+                    suspend(
+                        "Capture connection interrupted; remapping will reconnect automatically.")
                 }
                 return
             }
@@ -473,9 +480,16 @@ final class InputEngine {
                 case "status":
                     onStatus?(json["message"] as? String ?? "CHERRY-only capture active.")
                 case "error", "stopped":
-                    pause(
+                    let message =
                         json["message"] as? String
-                            ?? "CHERRY capture stopped. Native input restored.")
+                        ?? "CHERRY capture stopped. Native input restored."
+                    if CaptureRecovery.isTemporaryHelperStop(message) {
+                        suspend(
+                            "Capture interrupted by sleep/session change; remapping will resume automatically."
+                        )
+                    } else {
+                        pause(message)
+                    }
                     return
                 default:
                     pause("Unknown capture message; native input restored.")
@@ -513,7 +527,7 @@ final class InputEngine {
         var value: UInt8 = 65 + (indicators.caps ? 1 : 0) + (indicators.num ? 2 : 0)
         guard force || lastIndicatorByte != value else { return }
         if Darwin.write(connection, &value, 1) != 1 {
-            pause("Capture heartbeat failed. Native input restored.")
+            suspend("Capture heartbeat interrupted; remapping will reconnect automatically.")
         } else {
             lastIndicatorByte = value
         }
@@ -548,7 +562,14 @@ final class InputEngine {
         resumeTimer?.invalidate()
         resumeTimer = nil
         do { try start() } catch {
-            pause("Could not resume remapping: \(error.localizedDescription)")
+            // Secure input can begin between the readiness check and start().
+            if IsSecureEventInputEnabled() {
+                suspend(
+                    "Waiting for Secure Keyboard Entry to end; remapping will resume automatically."
+                )
+            } else {
+                pause("Could not resume remapping: \(error.localizedDescription)")
+            }
         }
     }
     private func pause(_ message: String) {

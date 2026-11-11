@@ -53,3 +53,9 @@ Trigger lookup uses kind/code from the selected profile, not a port, Bluetooth s
 - `Tests`: injected-event routing tests, validation/storage tests and nonprivileged IPC/snapshot checks.
 
 Tests do not prove that macOS approval, HID capture, LEDs, transport reconnection or secure input behave correctly on every machine. Hardware acceptance is separate.
+
+## Connection-loss recovery (v0.4.7 build 20)
+
+Helper EOF, socket/heartbeat interruption and XPC interruption preserve enabled intent and release capture before reconnecting. Known console-session, heartbeat-expiry and bounded-session stops also recover; other helper errors, validation failures, unsupported input and explicit Pause remain permanent stops. This covers helper failure arriving before workspace notifications. A fresh capture session revalidates permissions, signing and console identity; secure input remains native. A secure-input race during resume waits again rather than clearing user intent. The user reports F1 recovery working after installation; the separate cycle/manual-Pause checklist remains unconfirmed.
+
+While capture runs, a user-session event tap merges held CHERRY modifier outputs into native mouse clicks, movement, drags and scrolling. Native flags are preserved; the tap is removed on stop. This retains the locally verified Shift-click fix while restoring recovery.

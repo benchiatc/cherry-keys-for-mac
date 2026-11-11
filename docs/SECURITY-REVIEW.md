@@ -78,3 +78,7 @@ gitleaks dir /path/to/extracted/CherryKeysMac --redact
 ```
 
 Scan any history that will be published, keep raw reports private, and share only reviewed/redacted evidence. Report vulnerabilities through the [private reporting form](https://github.com/benchiatc/cherry-keys-for-mac/security/advisories/new). No scanner or reviewer can guarantee that the software is unexploitable.
+
+## Sleep/lock recovery — v0.4.7 build 20
+
+Capture EOF, heartbeat interruption, XPC interruption and known helper lifecycle stops preserve enabled intent and reconnect automatically, even before workspace notifications arrive. Manual Pause and permanent validation/protocol errors remain stopped. Secure input stays native. The user reports F1 recovery working in the tested build 19 candidate; separate sleep/lock/manual-Pause checks and other transports remain unconfirmed. Build 20 retains the same fix with release version metadata updated. Automated recovery checks increase from 10 to 23; root helper binaries are unchanged.

@@ -8,11 +8,11 @@
 
 I built this because the keyboard I wanted to use shipped with Windows-only [CHERRY KEYS software (official download)](https://www.cherry.de/en-gb/products/software-services/cherry-keys). I investigated its behavior, designed a native Mac alternative, and tested it against the real keyboard across every connection mode. The work went beyond mapping keys: isolating the right device, separating privileged capture from user actions, fixing Bluetooth LED feedback, and recovering after sleep and lock. Each fix followed a user-visible problem and a physical check. This project turns that work into an open-source foundation other Mac users can extend for their own CHERRY hardware.
 
-**4 connection modes verified · 183 key/transport checks + 10 recovery checks · 0 third-party runtime dependencies**
+**4 connection modes verified · 183 key/transport checks + 23 recovery checks · 0 third-party runtime dependencies**
 
 Swift and SwiftUI. MIT licensed. Independent community software, not affiliated with or endorsed by CHERRY.
 
-Current preview: **v0.4.6 (build 18)** · [Changelog](CHANGELOG.md) · [GitHub release](https://github.com/benchiatc/cherry-keys-for-mac/releases/tag/v0.4.6)
+Current preview: **v0.4.7 (build 20)** · [Changelog](CHANGELOG.md) · [GitHub release](https://github.com/benchiatc/cherry-keys-for-mac/releases/tag/v0.4.7)
 
 **v0.4.6 restores modifier + mouse shortcuts**, including TradingView's Shift-click ruler. The fix was physically confirmed on the F1 receiver in local v0.4.5 build 17; build 18 carries the same fix with updated release metadata. Download v0.4.6 using the illustrated installation guide below. The [previous v0.4.5 build 16](https://github.com/benchiatc/cherry-keys-for-mac/releases/tag/v0.4.5) does not contain this fix.
 
@@ -67,7 +67,7 @@ These pictures were captured on macOS 27.0.1. Older versions may use different n
 
 Open the project's **[GitHub Releases page](https://github.com/benchiatc/cherry-keys-for-mac/releases)**. Open the release you want, scroll to **Assets**, and click the file whose name ends in **`.dmg`**. If Assets is collapsed, click it to expand the list.
 
-For v0.4.6, download **[CherryKeysMac-0.4.6-macOS-universal.dmg](https://github.com/benchiatc/cherry-keys-for-mac/releases/download/v0.4.6/CherryKeysMac-0.4.6-macOS-universal.dmg)**. The screenshot shows v0.4.5 as an example; the filename's version will change with releases. “Universal” means the same installer works on Apple silicon and Intel Macs.
+For v0.4.6, download **[CherryKeysMac-0.4.7-macOS-universal.dmg](https://github.com/benchiatc/cherry-keys-for-mac/releases/download/v0.4.7/CherryKeysMac-0.4.7-macOS-universal.dmg)**. The screenshot shows v0.4.5 as an example; the filename's version will change with releases. “Universal” means the same installer works on Apple silicon and Intel Macs.
 
 Choose the **DMG**, rather than `CherryKeysMac-source.zip`, **Source code (zip)** or **Source code (tar.gz)**. Those are for developers. If your browser asks whether to allow downloads from GitHub, choose **Allow**. When the download finishes, look in **Finder → Downloads**, or use your browser's Downloads button.
 
@@ -380,7 +380,7 @@ xcrun swift-format lint --strict --recursive Sources Tests
 
 The build produces a universal arm64/x86_64 app in `.build/package.noindex/Cherry Keys for Mac.app`. Install at exactly `/Applications/Cherry Keys for Mac.app`; that path is part of helper authentication. Never run the GUI or test suite as root.
 
-Coverage includes model validation and private persistence, 105 key-routing checks (including 12 mouse-modifier regressions), 78 transport-routing checks, 10 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
+Coverage includes model validation and private persistence, 105 key-routing checks (including 12 mouse-modifier regressions), 78 transport-routing checks, 23 recovery checks, HID array decoding, manufacturer/transport rejection, nonroot helper rejection, helper setup, authenticated XPC and executable snapshot replacement/symlink checks. Event sinks are injected: automated tests do not seize hardware, post real keys or register privileged services. Hardware acceptance is separate. The macOS CI workflow builds and runs these checks with an ephemeral local signing identity.
 
 ### Signing and updates
 
@@ -431,3 +431,7 @@ Describe the user-visible problem, the implementation decision, the evidence and
 [MIT License](LICENSE). CHERRY names and marks belong to their respective owners; the license does not grant trademark rights.
 
 The implementation was informed by analysis of CHERRY KEYS 1.0.7 behavior. No vendor binaries, extracted resources, Windows installer or local device traces are included. The app icon is AI-generated artwork. This is an independent native implementation, not an official CHERRY release or a port of proprietary source code.
+
+## Sleep/lock recovery — v0.4.7 build 20
+
+Capture EOF, heartbeat interruption, XPC interruption and known helper lifecycle stops preserve enabled intent and reconnect automatically, even before workspace notifications arrive. Manual Pause and permanent validation/protocol errors remain stopped. Secure input stays native. The user reports F1 recovery working in the tested build 19 candidate; separate sleep/lock/manual-Pause checks and other transports remain unconfirmed. Build 20 retains the same fix with release version metadata updated. Automated recovery checks increase from 10 to 23; root helper binaries are unchanged.
